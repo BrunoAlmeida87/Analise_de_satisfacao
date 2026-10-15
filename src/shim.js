@@ -1,5 +1,5 @@
-// Mini-runtime que substitui o ambiente do dashboard publicado:
-// lê os CSVs embutidos, executa os cálculos e controla filtros/redesenho.
+// Mini-runtime da versão independente (GitHub Pages): substitui o ambiente do dashboard publicado.
+// Lê os CSVs embutidos (ou a base carregada pelo usuário), executa os cálculos e controla filtros e redesenho.
 (() => {
   const parseCSV = (txt) => {
     const rows = []; let row = [], cur = '', q = false;
@@ -15,8 +15,20 @@
     const head = rows.shift();
     return { columns: head, data: rows.filter((r) => r.length === head.length).map((r) => Object.fromEntries(head.map((h, i) => [h, r[i]]))) };
   };
-  const DS = {};
-  document.querySelectorAll('script[type="text/csv"][data-dataset]').forEach((s) => { DS[s.dataset.dataset] = parseCSV(s.textContent.trim()); });
+  const ORIG = {};
+  document.querySelectorAll('script[type="text/csv"][data-dataset]').forEach((s) => { ORIG[s.dataset.dataset] = parseCSV(s.textContent.trim()); });
+  const DS = { ...ORIG };
+  const CALCS = [];
+  let info = { kind: 'orig' };
+  try {
+    const saved = JSON.parse(localStorage.getItem('sv-base') || 'null');
+    if (saved && saved.rel && saved.cur) {
+      const toDS = (a) => ({ columns: a[0], data: a.slice(1).map((r) => Object.fromEntries(a[0].map((h, i) => [h, r[i] ?? '']))) });
+      DS.relatorios = toDS(saved.rel); DS.cursos = toDS(saved.cur);
+      info = { kind: 'user', file: saved.file, at: saved.at };
+    }
+  } catch (e) { /* ignore */ }
+
   const DEFAULTS = { area: null, curso: null, turma: null, minN: 5, metrica: 'media', ordem: 'form' };
   let params = { ...DEFAULTS };
   try { const h = new URLSearchParams(location.hash.slice(1)); for (const [k, v] of h) if (k in DEFAULTS) params[k] = v === '' ? null : (k === 'minN' || k === 'turma') ? Number(v) : v; } catch (e) { /* ignore */ }
@@ -24,12 +36,12 @@
   let pending = false;
   const run = () => { pending = false; subs.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } }); };
   const schedule = () => { if (!pending) { pending = true; requestAnimationFrame(run); } };
-  const syncHash = () => { const h = new URLSearchParams(); Object.entries(params).forEach(([k, v]) => { if (v != null && v !== DEFAULTS[k]) h.set(k, v); }); history.replaceState(null, '', h.toString() ? '#' + h.toString() : location.pathname + location.search); };
-  const css = getComputedStyle(document.documentElement);
+  const syncHash = () => { const h = new URLSearchParams(); Object.keys(DEFAULTS).forEach((k) => { const v = params[k]; if (v != null && v !== DEFAULTS[k]) h.set(k, v); }); history.replaceState(null, '', h.toString() ? '#' + h.toString() : location.pathname + location.search); };
+  const runCalc = ({ id, inputs, fn }) => { const out = fn(...inputs.map((i) => DS[i].data)); DS[id] = { data: out, columns: out.length ? Object.keys(out[0]) : [] }; };
   window.dash = {
-    colors: ['var(--color-ok)', 'var(--sv-c2)', 'var(--sv-c3)', 'var(--sv-c4)', 'var(--sv-c5)', 'var(--sv-c6)', 'var(--sv-c7)', 'var(--sv-c8)'],
+    colors: ['var(--color-ok)'],
     data: (id) => (DS[id] ? { status: 'ok', data: DS[id].data, columns: DS[id].columns, refreshing: false, meta: [] } : { status: 'missing', data: [], columns: [], meta: [] }),
-    calc: (id, { inputs, fn }) => { const out = fn(...inputs.map((i) => DS[i].data)); DS[id] = { data: out, columns: out.length ? Object.keys(out[0]) : [] }; },
+    calc: (id, { inputs, fn }) => { const c = { id, inputs, fn }; CALCS.push(c); runCalc(c); },
     loader: () => {},
     onData: (fn) => { subs.push(fn); try { fn(); } catch (e) { console.error(e); } },
     params: () => ({ ...params }),
@@ -38,8 +50,24 @@
     setLink: () => {},
     refresh: () => {},
   };
-  void css;
+  const recompute = () => { CALCS.forEach(runCalc); params = { ...params, area: null, curso: null, turma: null }; syncHash(); schedule(); };
+  window.SV_BASE_INFO = () => info;
+  window.SV_ORIG_CURSOS = () => ORIG.cursos.data;
+  window.SV_SET_BASE = ({ relatorios, cursos }, file) => {
+    DS.relatorios = { data: relatorios, columns: Object.keys(relatorios[0] || {}) };
+    DS.cursos = { data: cursos, columns: Object.keys(cursos[0] || {}) };
+    info = { kind: 'user', file, at: new Date().toISOString() };
+    try {
+      const arr = (ds) => [ds.columns, ...ds.data.map((r) => ds.columns.map((c) => r[c]))];
+      localStorage.setItem('sv-base', JSON.stringify({ file, at: info.at, rel: arr(DS.relatorios), cur: arr(DS.cursos) }));
+    } catch (e) { /* too large or blocked: stays for this session only */ }
+    recompute();
+  };
+  window.SV_RESET_BASE = () => {
+    DS.relatorios = ORIG.relatorios; DS.cursos = ORIG.cursos; info = { kind: 'orig' };
+    try { localStorage.removeItem('sv-base'); } catch (e) { /* ignore */ }
+    recompute();
+  };
   let w = window.innerWidth;
   window.addEventListener('resize', () => { if (Math.abs(window.innerWidth - w) > 4) { w = window.innerWidth; schedule(); } });
-  window.addEventListener('hashchange', () => {});
 })();

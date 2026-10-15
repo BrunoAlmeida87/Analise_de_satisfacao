@@ -15,16 +15,12 @@ FONTE = '''
   </footer>
 </div>'''
 head, tail = MARKUP.rsplit('</div>', 1)
-markup = head + FONTE + tail
+markup = MARKUP
 rel = (DATA / 'relatorios.csv').read_text(encoding='utf-8')
 cur = (DATA / 'cursos.csv').read_text(encoding='utf-8')
 assert '</script' not in rel + cur
-js = {n: (SRC / f'{n}.js').read_text(encoding='utf-8') for n in ('shim', 'calcs', 'app')}
-app = js['app'].replace(
-    "      if (!done) preview(blob, fname, node);",
-    "      if (!done && window.SV_STANDALONE) { const u = URL.createObjectURL(blob); const lk = document.createElement('a'); lk.href = u; lk.download = fname; document.body.appendChild(lk); lk.click(); lk.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); done = true; }\n      if (!done) preview(blob, fname, node);",
-)
-assert app != js['app']
+js = {n: (SRC / f'{n}.js').read_text(encoding='utf-8') for n in ('shim', 'calcs', 'i18n', 'upload', 'app')}
+app = js['app']
 
 page = f'''<!doctype html>
 <html lang="pt-BR">
@@ -40,7 +36,6 @@ page = f'''<!doctype html>
 </head>
 <body>
 <div id="dash-root">
-<button class="sv-btn sv-theme" id="sv-theme" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
 {markup}
 </div>
 <script type="text/csv" data-dataset="relatorios">
@@ -53,20 +48,22 @@ page = f'''<!doctype html>
 {js['calcs']}
 </script>
 <script>
-{app}
+{js['i18n']}
 </script>
 <script>
-(() => {{
-  document.getElementById('sv-theme').addEventListener('click', () => {{
-    const r = document.documentElement;
-    const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-    r.dataset.theme = dark ? 'light' : 'dark';
-    window.dash.setParams({{}});
-  }});
-}})();
+{js['upload']}
+</script>
+<script>
+{app}
 </script>
 </body>
 </html>
 '''
 (ROOT / 'index.html').write_text(page, encoding='utf-8')
 print(f'index.html: {len(page.encode()) / 1024:.0f} KB')
+
+# Página para o dashboard publicado no Claude (sem runtime próprio nem leitor de planilha)
+artifact = MARKUP + '\n<script>\n' + js['calcs'] + '\n</script>\n<script>\n' + js['i18n'] + '\n</script>\n<script>\n' + js['app'] + '\n</script>\n'
+(ROOT / 'build').mkdir(exist_ok=True)
+(ROOT / 'build' / 'artifact_page.html').write_text(artifact, encoding='utf-8')
+print(f'build/artifact_page.html: {len(artifact.encode()) / 1024:.0f} KB')

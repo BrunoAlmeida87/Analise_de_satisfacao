@@ -1,0 +1,60 @@
+sigla,curso_en
+C.GE.001,Test Folder Preparation
+C.OP.016,BF Training (115V/60 Hz Network)
+C.OP.029,DM Training (Weight Management System)
+C.OP.030,"DN Training (Depth, Trim and List Monitoring Systems)"
+C.OP.038,"DY Training (HP Air Production, Storage and Distribution System)"
+C.OP.040,EF Training (Fire Detection and Fire Control)
+C.OP.043,EL Training (Lubricating Oil Installations)
+C.OP.052,EZ Training (Breathing Air)
+C.OP.054,FC Training (Air Conditioning System)
+C.OP.056,FH Training (Ventilation System)
+C.OP.065,GS Training (Attack Periscope (PA))
+C.OP.068,"HE Training (Signaling Equipment: Flares, Whistle, Searchlight)"
+C.OP.073,HP Training (Public Address and Voice Pipe)
+C.OP.077,KE Training (Weapon Handling System)
+C.OP.079,KL Training (Countermeasure System)
+C.OP.080,KO Training (Command and Control System)
+C.OP.082,Torpedo Tube (TLT) Installation
+C.OP.084,ME Training (Electric Motor Installation and Related Circuits)
+C.OP.088,RD Training (Navigation Radar (ESM))
+C.OP.092,RM Training (Hoistable Masts)
+C.OP.095,UL Training (Multipurpose Trunk)
+C.OP.097,UP Training (Celerimeter and Bathycelerimeter)
+C.OP.098,UW Training (Self-Noise Monitoring System)
+C.OP.106,SBR Maintenance Management – Processes and Routines
+G.SE.001,Diving Safety Level 1
+G.SE.002,Diving Safety Level 2
+G.SE.004,CSPI – Circuits Subjected to Immersion Pressure
+G.SE.006,Controlled Watertightness BIC BOC
+G.SE.007,M05 Form Completion and SMB-030510 Study
+G.SE.008,Train the Trainer
+G.SE.009,Safety Milestones
+G.SE.010,Hull Watertightness and B05
+G.SE.012,Construction Logic
+P.EL.001,Electrical Work Safety
+P.EL.006,Assembly Connections on Electrical Equipment
+P.ES.002,Tank Closing Procedure
+P.ES.003,Submerged Arc Welding
+P.ES.005,Pressure Hull Fabrication
+P.ES.008,Fabrication Workshop: Innovation in Plate Cutting and Pressure Hull Structures
+P.ES.011,Flux-Cored Arc Welding Process on the MASC Automatic Machine
+P.GE.004,"Documentation: Reading and Interpretation (Construction Book, Technical Drawings, Test Folders, CTEs, etc.) and Diagrams"
+P.GE.007,System Contamination
+P.ME.002,"Equipment Assembly, Alignment and Preservation"
+P.ME.004,Assembly Procedure – Hull Installation
+P.ME.006,Torque Control Procedure
+P.ME.007,"CTE B06, B11.19 and D55.6 Procedure and Completion"
+P.ME.008,Fastener Locking Technology
+P.PI.002,"Surface Preparation, Blasting, Temperature Control, Paint Mixing, Scraping and Protection"
+P.TU.001,Isometric Drawing Reading and Interpretation
+P.TU.004,Ruch Connection Assembly Process
+P.TU.005,Straub Connection Assembly Process
+P.TU.006,Flanged Connection Assembly Process – SMB-030510
+P.TU.008,Argon Purging
+P.TU.009,Blasonagem
+P.TU.010,Extrusion
+P.TU.012,Flow Diagram Reading
+P.TU.014,Cathodic Protection
+Q.IN.001,Traceability
+Q.IN.002,Acoustic Discretion

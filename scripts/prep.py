@@ -1,5 +1,6 @@
 """Converte a planilha exportada do banco (aba SQL Results, uma linha por pergunta)
 em data/relatorios.csv (uma linha por ficha) e data/cursos.csv.
+Os nomes em inglês vêm de data/traducoes_cursos.csv (cursos novos ficam com o nome original).
 
 Uso: python scripts/prep.py "Relatórios de Satisfação Treinamentos.xlsx"
 """
@@ -41,7 +42,7 @@ def main(xlsx: str) -> None:
     out = base.merge(notas.reset_index(), on=['sigla', 'turma', 'relatorio'], how='left')
     cols = list(ITENS.values())
     out = out[['sigla', 'turma', 'relatorio', 'status'] + cols].sort_values(['sigla', 'turma', 'relatorio'])
-    out.loc[out.status != 'Preenchido', cols] = np.nan  # respostas em fichas de faltosos não entram
+    # respostas em fichas de faltosos ficam na base (para a auditoria), mas os cálculos só usam fichas preenchidas
     for c in cols:
         out[c] = out[c].astype('Int64')
     (ROOT / 'data').mkdir(exist_ok=True)
@@ -51,7 +52,10 @@ def main(xlsx: str) -> None:
     cursos['area'] = cursos.sigla.str[:4]
     cursos['curso'] = cursos.curso.fillna('').str.replace(r'\s+', ' ', regex=True).str.strip()
     cursos['curso'] = cursos.curso.where(cursos.curso != '', 'Sem nome no cadastro')
-    cursos[['sigla', 'area', 'curso']].to_csv(ROOT / 'data' / 'cursos.csv', index=False)
+    trad = ROOT / 'data' / 'traducoes_cursos.csv'
+    en = pd.read_csv(trad).set_index('sigla')['curso_en'].to_dict() if trad.exists() else {}
+    cursos['curso_en'] = [en.get(s, 'No name on record' if c == 'Sem nome no cadastro' else c) for s, c in zip(cursos.sigla, cursos.curso)]
+    cursos[['sigla', 'area', 'curso', 'curso_en']].to_csv(ROOT / 'data' / 'cursos.csv', index=False)
     print(f'{len(out)} fichas ({(out.status == "Preenchido").sum()} preenchidas), {len(cursos)} cursos')
 
 
