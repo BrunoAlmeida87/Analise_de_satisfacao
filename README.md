@@ -2,7 +2,7 @@
 
 Dashboard interativo das fichas de **avaliação de tipo de reação** dos treinamentos: 7.456 fichas, 77 cursos, 11 áreas e 558 turmas, extraídas da planilha *Relatórios de Satisfação Treinamentos* (aba SQL Results).
 
-**Acesse:** https://brunoalmeida87.github.io/Analise_de_satisfacao/
+**Acesse:** https://brunoalmeida87.github.io/Analise_de_satisfacao/ (publicado a partir do branch `gh-pages`; após atualizar o `main`, rode `git push origin main:gh-pages`)
 
 O dashboard é uma página única (`index.html`), com os dados embutidos. Não precisa de servidor: também abre direto no navegador.
 
