@@ -164,7 +164,7 @@ window.SV_I18N = (() => {
   };
 
   Object.assign(T, {
-    tab_painel: ['Painel', 'Dashboard'], tab_dados: ['Dados', 'Data'],
+    tab_painel: ['Painel', 'Dashboard'], btn_filters: ['Filtros', 'Filters'], tab_dados: ['Dados', 'Data'],
     f_areas: ['Áreas', 'Areas'], f_cursos: ['Cursos', 'Courses'], f_turmas: ['Turmas', 'Classes'],
     ms_all: ['Todas', 'All'], ms_all_m: ['Todos', 'All'], ms_n: ['{n} selecionadas', '{n} selected'], ms_n_m: ['{n} selecionados', '{n} selected'],
     ms_sel_all: ['Selecionar todos', 'Select all'], ms_clear: ['Limpar', 'Clear'], ms_invert: ['Inverter', 'Invert'], ms_search: ['Buscar…', 'Search…'], ms_none: ['Nada encontrado', 'Nothing found'],

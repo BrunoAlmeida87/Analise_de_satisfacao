@@ -225,6 +225,66 @@
   @keyframes svFade { from { opacity: 0; } to { opacity: 1; } }
   .sv-fade { animation: svFade var(--cds-dur-slow) var(--cds-ease-out) both; }
 }
+/* ---------- telas pequenas (celular e tablet) ---------- */
+.sv-ftoggle { display: none; }
+.sv-ftoggle .sv-badge { font-size: 11px; padding: 0 6px; border-radius: 999px; background: var(--sv-accent); color: var(--color-bg); }
+.sv-ftoggle[aria-expanded=true] .sv-badge { background: var(--color-bg); color: var(--color-fg); }
+@media (max-width: 900px) {
+  .sv-ftoggle { display: inline-flex; }
+  .sv-sticky:not(.sv-fopen) .sv-filters { display: none; }
+  .sv-sticky.sv-fopen { max-height: calc(100vh - 4px); max-height: calc(100dvh - 4px); overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 10px 24px -12px rgba(0,0,0,.35); }
+  .sv-filters { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); align-items: end; gap: 10px 12px; padding-bottom: 10px; }
+  .sv-f select, .sv-ms-btn { width: 100%; max-width: none; min-width: 0; }
+  .sv-ms-pop { width: min(30rem, calc(100vw - 2 * var(--dash-gutter, 12px))); }
+  .sv-barrow { gap: 8px; }
+  .sv-scope { order: 9; flex: 1 1 100%; margin-left: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 2px; }
+  .sv-scope b { display: inline; margin-right: 6px; }
+  .sv-section { scroll-margin-top: 120px; }
+}
+@media (max-width: 560px) {
+  .sv-topbar { margin-bottom: 10px; }
+  .sv-actions { flex-wrap: nowrap; overflow-x: auto; width: 100%; padding-bottom: 2px; scrollbar-width: none; }
+  .sv-actions::-webkit-scrollbar { display: none; }
+  .sv-actions > * { flex: none; }
+  .sv-title { font-size: 1.75rem; margin: 6px 0 10px; }
+  .sv-take { font-size: var(--cds-font-size-body); min-height: 0; }
+  .sv-sticky { margin-top: 14px; }
+  .sv-filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .sv-filters .sv-f:nth-last-child(-n+2) { grid-column: span 1; }
+  .sv-f label, .sv-f > span { font-size: 10px; letter-spacing: .04em; }
+  .sv-card { padding: 12px; }
+  .sv-section { margin-top: 28px; }
+  .sv-sec-head { margin-bottom: 10px; }
+  .sv-h2 { font-size: 1.4rem; }
+  .sv-h2-note { font-size: var(--cds-font-size-caption); }
+  .sv-pop { max-width: calc(100vw - 24px); }
+  .sv-dhead { margin-top: 10px; }
+  .sv-dhead .sv-tools { width: 100%; }
+  .sv-dhead .sv-search { flex: 1 1 8rem; min-width: 0; }
+  .sv-panel { padding: 14px; }
+  .sv-kpi { min-height: 0; gap: 8px; }
+  .sv-kpi-note { margin-top: 4px; }
+}
+@media (max-width: 760px) {
+  .sv-heat th:first-child, .sv-heat td:first-child { position: sticky; left: 0; background: var(--color-panel); max-width: 44vw; min-width: 0; padding-right: 6px; }
+  .sv-heat th:first-child { z-index: 3; }
+  .sv-heat td:first-child { z-index: 1; box-shadow: 6px 0 6px -6px rgba(0,0,0,.25); }
+  .sv-tbl tr > :first-child { position: sticky; left: 0; background: var(--color-panel); z-index: 1; box-shadow: 6px 0 6px -6px rgba(0,0,0,.25); }
+  .sv-tbl thead tr > :first-child { z-index: 3; }
+  .sv-tbl tbody tr:hover > td:first-child { background: color-mix(in srgb, var(--color-fg) 4%, var(--color-panel)); }
+  .sv-tbl tr.sv-cur > td:first-child { background: color-mix(in srgb, var(--sv-accent) 10%, var(--color-panel)); }
+  .sv-cell-name { max-width: 44vw; }
+}
+@media (max-width: 560px) {
+  .sv-barrow { flex-wrap: wrap; column-gap: 6px; }
+  .sv-tabs { padding: 2px; }
+  .sv-tabs button { padding: 5px 10px; font-size: 14px; }
+  .sv-barrow > .sv-btn { padding: 6px 9px; }
+}
+@media (max-width: 430px) {
+  #f-back span { display: none; }
+  #f-back::before { content: "\21B6"; font-size: 15px; line-height: 1; }
+}
 @media print {
   .sv-sticky, .sv-actions, .sv-exp, .sv-tools, .sv-panel, .sv-i, .sv-preview, .sv-search, .sv-how, #view-dados { display: none !important; }
   .sv.sv-printing * { visibility: hidden; }
@@ -336,6 +396,7 @@
   <div class="sv-sticky" id="barra">
     <div class="sv-barrow">
       <div class="sv-tabs" role="tablist"><button type="button" role="tab" data-view="painel"><span data-i18n="tab_painel"></span></button><button type="button" role="tab" data-view="dados"><span data-i18n="tab_dados"></span><span class="sv-badge" id="dados-n" hidden></span></button></div>
+      <button class="sv-btn sv-ftoggle" id="f-toggle" type="button" aria-expanded="false" aria-controls="filtros"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12M4.5 8h7M7 12.5h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg><span data-i18n="btn_filters"></span><span class="sv-badge" id="f-count" hidden></span></button>
       <button class="sv-btn" id="f-back" type="button" disabled><span data-i18n="btn_back"></span></button>
       <div class="sv-scope" id="sv-scope"></div>
     </div>

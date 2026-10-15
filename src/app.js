@@ -246,6 +246,7 @@
 
   // ---------- multi-select ----------
   const openPops = new Set();
+  const coarse = () => { try { return window.matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } };
   document.addEventListener('click', (e) => {
     openPops.forEach((ms) => { if (!ms.host.contains(e.target)) ms.close(); });
     document.querySelectorAll('.sv-exp-menu').forEach((m) => { if (!m.parentElement.contains(e.target)) m.hidden = true; });
@@ -278,7 +279,12 @@
       });
       const sc = list.scrollTop; list.replaceChildren(...nodes); list.scrollTop = sc;
     };
-    btn.addEventListener('click', () => { if (ms.open) { ms.close(); return; } openPops.forEach((o) => o.close()); ms.open = true; popEl.hidden = false; openPops.add(ms); renderList(); search.focus(); });
+    btn.addEventListener('click', () => { if (ms.open) { ms.close(); return; } openPops.forEach((o) => o.close()); ms.open = true; popEl.hidden = false; openPops.add(ms); renderList(); placePop(); if (!coarse()) search.focus(); });
+    const placePop = () => {
+      popEl.style.left = '0px';
+      const r = popEl.getBoundingClientRect(), pad = 8;
+      if (r.right > window.innerWidth - pad) popEl.style.left = Math.max(pad - host.getBoundingClientRect().left, window.innerWidth - pad - r.right) + 'px';
+    };
     search.addEventListener('input', renderList);
     bAll.addEventListener('click', () => { const s = sel(); visible().forEach((o) => s.add(o.value)); commit(s); });
     bClr.addEventListener('click', () => { if (search.value.trim()) { const s = sel(); visible().forEach((o) => s.delete(o.value)); commit(s); } else commit(new Set()); });
@@ -375,15 +381,22 @@
   const navLinks = [...document.querySelectorAll('#sv-nav a')];
   navLinks.forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); const id = a.getAttribute('href').slice(1); const s = $(id); if (s) { s.scrollIntoView({ behavior: 'smooth', block: 'start' }); try { dash.setLink(id); } catch (err) { /* ignore */ } } }));
   try {
-    const io = new IntersectionObserver((ents) => { ents.forEach((en) => { if (en.isIntersecting) navLinks.forEach((a) => a.classList.toggle('sv-on', a.getAttribute('href') === '#' + en.target.id)); }); }, { root: document, rootMargin: '-35% 0px -60% 0px' });
+    const io = new IntersectionObserver((ents) => { ents.forEach((en) => { if (en.isIntersecting) { navLinks.forEach((a) => a.classList.toggle('sv-on', a.getAttribute('href') === '#' + en.target.id)); const on = navLinks.find((a) => a.classList.contains('sv-on')); const nv = $('sv-nav'); if (on && nv.scrollWidth > nv.clientWidth) { const l = on.offsetLeft - nv.offsetLeft; if (l < nv.scrollLeft || l + on.offsetWidth > nv.scrollLeft + nv.clientWidth) nv.scrollTo({ left: Math.max(0, l - 16), behavior: 'smooth' }); } } }); }, { root: document, rootMargin: '-35% 0px -60% 0px' });
     navLinks.forEach((a) => { const s = $(a.getAttribute('href').slice(1)); if (s) io.observe(s); });
   } catch (e) { /* no observer */ }
 
+  // filtros recolhíveis em telas pequenas
+  const fTog = $('f-toggle');
+  const setFOpen = (o) => { $('barra').classList.toggle('sv-fopen', o); fTog.setAttribute('aria-expanded', String(o)); };
+  fTog.addEventListener('click', () => setFOpen(!$('barra').classList.contains('sv-fopen')));
+  document.querySelectorAll('#sv-nav a, [data-view]').forEach((a) => a.addEventListener('click', () => setFOpen(false)));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('barra').classList.contains('sv-fopen') && !document.querySelector('.sv-ms-pop:not([hidden])')) setFOpen(false); });
   function drawFilters() {
+    { const f = F(); const n = (f.areas.length ? 1 : 0) + (f.cursos.length ? 1 : 0) + (f.turmas.length ? 1 : 0) + (f.onlyFilled ? 1 : 0); $('f-count').hidden = !n; $('f-count').textContent = String(n); }
     const f = F();
     msArea.update(); msCurso.update(); msTurma.update();
     $('f-only').checked = f.onlyFilled; $('f-grp').value = f.grp; $('f-min').value = String(P().minN ?? 5);
-    $('f-back').disabled = !hist.length;
+    $('f-back').disabled = !hist.length; $('f-back').title = t('btn_back').replace(/^\S+\s/, '');
     document.querySelectorAll('[data-ordem]').forEach((b) => b.setAttribute('aria-pressed', String((P().ordem || 'form') === b.dataset.ordem)));
     document.querySelectorAll('[data-metrica]').forEach((b) => b.setAttribute('aria-pressed', String((P().metrica || 'media') === b.dataset.metrica)));
     document.querySelectorAll('[data-rmetric]').forEach((b) => b.setAttribute('aria-pressed', String((P().rmetric || 'media') === b.dataset.rmetric)));

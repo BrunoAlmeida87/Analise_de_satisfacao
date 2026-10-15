@@ -273,6 +273,66 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
   @keyframes svFade { from { opacity: 0; } to { opacity: 1; } }
   .sv-fade { animation: svFade var(--cds-dur-slow) var(--cds-ease-out) both; }
 }
+/* ---------- telas pequenas (celular e tablet) ---------- */
+.sv-ftoggle { display: none; }
+.sv-ftoggle .sv-badge { font-size: 11px; padding: 0 6px; border-radius: 999px; background: var(--sv-accent); color: var(--color-bg); }
+.sv-ftoggle[aria-expanded=true] .sv-badge { background: var(--color-bg); color: var(--color-fg); }
+@media (max-width: 900px) {
+  .sv-ftoggle { display: inline-flex; }
+  .sv-sticky:not(.sv-fopen) .sv-filters { display: none; }
+  .sv-sticky.sv-fopen { max-height: calc(100vh - 4px); max-height: calc(100dvh - 4px); overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 10px 24px -12px rgba(0,0,0,.35); }
+  .sv-filters { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); align-items: end; gap: 10px 12px; padding-bottom: 10px; }
+  .sv-f select, .sv-ms-btn { width: 100%; max-width: none; min-width: 0; }
+  .sv-ms-pop { width: min(30rem, calc(100vw - 2 * var(--dash-gutter, 12px))); }
+  .sv-barrow { gap: 8px; }
+  .sv-scope { order: 9; flex: 1 1 100%; margin-left: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 2px; }
+  .sv-scope b { display: inline; margin-right: 6px; }
+  .sv-section { scroll-margin-top: 120px; }
+}
+@media (max-width: 560px) {
+  .sv-topbar { margin-bottom: 10px; }
+  .sv-actions { flex-wrap: nowrap; overflow-x: auto; width: 100%; padding-bottom: 2px; scrollbar-width: none; }
+  .sv-actions::-webkit-scrollbar { display: none; }
+  .sv-actions > * { flex: none; }
+  .sv-title { font-size: 1.75rem; margin: 6px 0 10px; }
+  .sv-take { font-size: var(--cds-font-size-body); min-height: 0; }
+  .sv-sticky { margin-top: 14px; }
+  .sv-filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .sv-filters .sv-f:nth-last-child(-n+2) { grid-column: span 1; }
+  .sv-f label, .sv-f > span { font-size: 10px; letter-spacing: .04em; }
+  .sv-card { padding: 12px; }
+  .sv-section { margin-top: 28px; }
+  .sv-sec-head { margin-bottom: 10px; }
+  .sv-h2 { font-size: 1.4rem; }
+  .sv-h2-note { font-size: var(--cds-font-size-caption); }
+  .sv-pop { max-width: calc(100vw - 24px); }
+  .sv-dhead { margin-top: 10px; }
+  .sv-dhead .sv-tools { width: 100%; }
+  .sv-dhead .sv-search { flex: 1 1 8rem; min-width: 0; }
+  .sv-panel { padding: 14px; }
+  .sv-kpi { min-height: 0; gap: 8px; }
+  .sv-kpi-note { margin-top: 4px; }
+}
+@media (max-width: 760px) {
+  .sv-heat th:first-child, .sv-heat td:first-child { position: sticky; left: 0; background: var(--color-panel); max-width: 44vw; min-width: 0; padding-right: 6px; }
+  .sv-heat th:first-child { z-index: 3; }
+  .sv-heat td:first-child { z-index: 1; box-shadow: 6px 0 6px -6px rgba(0,0,0,.25); }
+  .sv-tbl tr > :first-child { position: sticky; left: 0; background: var(--color-panel); z-index: 1; box-shadow: 6px 0 6px -6px rgba(0,0,0,.25); }
+  .sv-tbl thead tr > :first-child { z-index: 3; }
+  .sv-tbl tbody tr:hover > td:first-child { background: color-mix(in srgb, var(--color-fg) 4%, var(--color-panel)); }
+  .sv-tbl tr.sv-cur > td:first-child { background: color-mix(in srgb, var(--sv-accent) 10%, var(--color-panel)); }
+  .sv-cell-name { max-width: 44vw; }
+}
+@media (max-width: 560px) {
+  .sv-barrow { flex-wrap: wrap; column-gap: 6px; }
+  .sv-tabs { padding: 2px; }
+  .sv-tabs button { padding: 5px 10px; font-size: 14px; }
+  .sv-barrow > .sv-btn { padding: 6px 9px; }
+}
+@media (max-width: 430px) {
+  #f-back span { display: none; }
+  #f-back::before { content: "\21B6"; font-size: 15px; line-height: 1; }
+}
 @media print {
   .sv-sticky, .sv-actions, .sv-exp, .sv-tools, .sv-panel, .sv-i, .sv-preview, .sv-search, .sv-how, #view-dados { display: none !important; }
   .sv.sv-printing * { visibility: hidden; }
@@ -384,6 +444,7 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
   <div class="sv-sticky" id="barra">
     <div class="sv-barrow">
       <div class="sv-tabs" role="tablist"><button type="button" role="tab" data-view="painel"><span data-i18n="tab_painel"></span></button><button type="button" role="tab" data-view="dados"><span data-i18n="tab_dados"></span><span class="sv-badge" id="dados-n" hidden></span></button></div>
+      <button class="sv-btn sv-ftoggle" id="f-toggle" type="button" aria-expanded="false" aria-controls="filtros"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12M4.5 8h7M7 12.5h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg><span data-i18n="btn_filters"></span><span class="sv-badge" id="f-count" hidden></span></button>
       <button class="sv-btn" id="f-back" type="button" disabled><span data-i18n="btn_back"></span></button>
       <div class="sv-scope" id="sv-scope"></div>
     </div>
@@ -8864,7 +8925,7 @@ window.SV_I18N = (() => {
   };
 
   Object.assign(T, {
-    tab_painel: ['Painel', 'Dashboard'], tab_dados: ['Dados', 'Data'],
+    tab_painel: ['Painel', 'Dashboard'], btn_filters: ['Filtros', 'Filters'], tab_dados: ['Dados', 'Data'],
     f_areas: ['Áreas', 'Areas'], f_cursos: ['Cursos', 'Courses'], f_turmas: ['Turmas', 'Classes'],
     ms_all: ['Todas', 'All'], ms_all_m: ['Todos', 'All'], ms_n: ['{n} selecionadas', '{n} selected'], ms_n_m: ['{n} selecionados', '{n} selected'],
     ms_sel_all: ['Selecionar todos', 'Select all'], ms_clear: ['Limpar', 'Clear'], ms_invert: ['Inverter', 'Invert'], ms_search: ['Buscar…', 'Search…'], ms_none: ['Nada encontrado', 'Nothing found'],
@@ -9248,6 +9309,7 @@ window.SV_I18N = (() => {
 
   // ---------- multi-select ----------
   const openPops = new Set();
+  const coarse = () => { try { return window.matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } };
   document.addEventListener('click', (e) => {
     openPops.forEach((ms) => { if (!ms.host.contains(e.target)) ms.close(); });
     document.querySelectorAll('.sv-exp-menu').forEach((m) => { if (!m.parentElement.contains(e.target)) m.hidden = true; });
@@ -9280,7 +9342,12 @@ window.SV_I18N = (() => {
       });
       const sc = list.scrollTop; list.replaceChildren(...nodes); list.scrollTop = sc;
     };
-    btn.addEventListener('click', () => { if (ms.open) { ms.close(); return; } openPops.forEach((o) => o.close()); ms.open = true; popEl.hidden = false; openPops.add(ms); renderList(); search.focus(); });
+    btn.addEventListener('click', () => { if (ms.open) { ms.close(); return; } openPops.forEach((o) => o.close()); ms.open = true; popEl.hidden = false; openPops.add(ms); renderList(); placePop(); if (!coarse()) search.focus(); });
+    const placePop = () => {
+      popEl.style.left = '0px';
+      const r = popEl.getBoundingClientRect(), pad = 8;
+      if (r.right > window.innerWidth - pad) popEl.style.left = Math.max(pad - host.getBoundingClientRect().left, window.innerWidth - pad - r.right) + 'px';
+    };
     search.addEventListener('input', renderList);
     bAll.addEventListener('click', () => { const s = sel(); visible().forEach((o) => s.add(o.value)); commit(s); });
     bClr.addEventListener('click', () => { if (search.value.trim()) { const s = sel(); visible().forEach((o) => s.delete(o.value)); commit(s); } else commit(new Set()); });
@@ -9377,15 +9444,22 @@ window.SV_I18N = (() => {
   const navLinks = [...document.querySelectorAll('#sv-nav a')];
   navLinks.forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); const id = a.getAttribute('href').slice(1); const s = $(id); if (s) { s.scrollIntoView({ behavior: 'smooth', block: 'start' }); try { dash.setLink(id); } catch (err) { /* ignore */ } } }));
   try {
-    const io = new IntersectionObserver((ents) => { ents.forEach((en) => { if (en.isIntersecting) navLinks.forEach((a) => a.classList.toggle('sv-on', a.getAttribute('href') === '#' + en.target.id)); }); }, { root: document, rootMargin: '-35% 0px -60% 0px' });
+    const io = new IntersectionObserver((ents) => { ents.forEach((en) => { if (en.isIntersecting) { navLinks.forEach((a) => a.classList.toggle('sv-on', a.getAttribute('href') === '#' + en.target.id)); const on = navLinks.find((a) => a.classList.contains('sv-on')); const nv = $('sv-nav'); if (on && nv.scrollWidth > nv.clientWidth) { const l = on.offsetLeft - nv.offsetLeft; if (l < nv.scrollLeft || l + on.offsetWidth > nv.scrollLeft + nv.clientWidth) nv.scrollTo({ left: Math.max(0, l - 16), behavior: 'smooth' }); } } }); }, { root: document, rootMargin: '-35% 0px -60% 0px' });
     navLinks.forEach((a) => { const s = $(a.getAttribute('href').slice(1)); if (s) io.observe(s); });
   } catch (e) { /* no observer */ }
 
+  // filtros recolhíveis em telas pequenas
+  const fTog = $('f-toggle');
+  const setFOpen = (o) => { $('barra').classList.toggle('sv-fopen', o); fTog.setAttribute('aria-expanded', String(o)); };
+  fTog.addEventListener('click', () => setFOpen(!$('barra').classList.contains('sv-fopen')));
+  document.querySelectorAll('#sv-nav a, [data-view]').forEach((a) => a.addEventListener('click', () => setFOpen(false)));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('barra').classList.contains('sv-fopen') && !document.querySelector('.sv-ms-pop:not([hidden])')) setFOpen(false); });
   function drawFilters() {
+    { const f = F(); const n = (f.areas.length ? 1 : 0) + (f.cursos.length ? 1 : 0) + (f.turmas.length ? 1 : 0) + (f.onlyFilled ? 1 : 0); $('f-count').hidden = !n; $('f-count').textContent = String(n); }
     const f = F();
     msArea.update(); msCurso.update(); msTurma.update();
     $('f-only').checked = f.onlyFilled; $('f-grp').value = f.grp; $('f-min').value = String(P().minN ?? 5);
-    $('f-back').disabled = !hist.length;
+    $('f-back').disabled = !hist.length; $('f-back').title = t('btn_back').replace(/^\S+\s/, '');
     document.querySelectorAll('[data-ordem]').forEach((b) => b.setAttribute('aria-pressed', String((P().ordem || 'form') === b.dataset.ordem)));
     document.querySelectorAll('[data-metrica]').forEach((b) => b.setAttribute('aria-pressed', String((P().metrica || 'media') === b.dataset.metrica)));
     document.querySelectorAll('[data-rmetric]').forEach((b) => b.setAttribute('aria-pressed', String((P().rmetric || 'media') === b.dataset.rmetric)));
