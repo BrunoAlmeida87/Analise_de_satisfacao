@@ -1,0 +1,78 @@
+sigla,area,curso
+C.GE.001,C.GE,Elaboração de Pastas de Teste
+C.OP.016,C.OP,Treinamento BF (115V/60 Hz Network)
+C.OP.029,C.OP,Treinamento DM (Weight Management System)
+C.OP.030,C.OP,"Treinamento DN (Depth, trim and list monitoring Systems)"
+C.OP.038,C.OP,"Treinamento DY (HP air production, Storage and Distribution System)"
+C.OP.040,C.OP,Treinamento EF (Fire Detection and fire control)
+C.OP.043,C.OP,Treinamento EL (Lubricating oil installations)
+C.OP.052,C.OP,Treinamento EZ (Breathing air)
+C.OP.054,C.OP,Treinamento FC (Air conditionning system)
+C.OP.056,C.OP,Treinamento FH (Ventilation system)
+C.OP.065,C.OP,Treinamento GS (Attack periscope (PA))
+C.OP.068,C.OP,"Treinamento HE (Signaling equipment : Flares, whistle - Searchlight)"
+C.OP.073,C.OP,Treinamento HP (Public adress and voice pipe)
+C.OP.077,C.OP,Treinamento KE (Weapon handling system)
+C.OP.079,C.OP,Treinamento KL (Counter measure system)
+C.OP.080,C.OP,Treinamento KO (Command and control system)
+C.OP.082,C.OP,Instalação dos TLT's
+C.OP.084,C.OP,Treinamento ME (Electrical Motor installation and related circuits)
+C.OP.088,C.OP,Treinamento RD (Navigation radar (ESM))
+C.OP.092,C.OP,Treinamento RM (Hoistable masts)
+C.OP.095,C.OP,Treinamento UL (Multipurpose trunk)
+C.OP.097,C.OP,Treinamento UP (Celerimetrer and bathycelerimeter)
+C.OP.098,C.OP,Treinamento UW (Self Noise Monitoring System)
+C.OP.106,C.OP,Gestão de Manutenção dos SBRs - Processos e Rotinas
+G.SE.001,G.SE,Segurança de Mergulho Nível 1
+G.SE.002,G.SE,Segurança de Mergulho Nível 2
+G.SE.004,G.SE,CSPI- Circuito Submetido à Pressão de Imersão
+G.SE.006,G.SE,Estanqueidade Controlada BIC BOC
+G.SE.007,G.SE,Preenchimento de ficha M05 e estudo sobre SMB-030510
+G.SE.008,G.SE,Treinando para Treinar
+G.SE.009,G.SE,Marcos de Segurança
+G.SE.010,G.SE,Estanqueidade de Casco e B05
+G.SE.012,G.SE,Lógica de Construção
+I.IN.001,I.IN,Sem nome no cadastro
+I.IN.002,I.IN,Sem nome no cadastro
+I.IN.003,I.IN,Sem nome no cadastro
+I.IN.004,I.IN,Sem nome no cadastro
+I.IN.005,I.IN,Sem nome no cadastro
+I.IN.006,I.IN,Sem nome no cadastro
+I.IN.007,I.IN,Sem nome no cadastro
+I.IN.008,I.IN,Sem nome no cadastro
+I.IN.009,I.IN,Sem nome no cadastro
+I.IN.010,I.IN,Sem nome no cadastro
+I.IN.011,I.IN,Sem nome no cadastro
+I.IN.012,I.IN,Sem nome no cadastro
+I.IN.013,I.IN,Sem nome no cadastro
+I.IN.014,I.IN,Sem nome no cadastro
+I.IN.015,I.IN,Sem nome no cadastro
+I.IN.016,I.IN,Sem nome no cadastro
+I.IN.017,I.IN,Sem nome no cadastro
+P.EL.001,P.EL,Segurança no Trabalho de Eletricidade
+P.EL.006,P.EL,Conexões de montagem nos equipamentos elétricos
+P.ES.002,P.ES,Procedimento de fechamento de tanques
+P.ES.003,P.ES,Arco Submerso de Solda
+P.ES.005,P.ES,Fabricação do casco resistente
+P.ES.008,P.ES,Workshop de Fabricação: Inovação em Cortes de Chapas e Estruturas de Casco Resistente
+P.ES.011,P.ES,Processo de Soldagem Arame Tubular na Máquina Automática MASC
+P.GE.004,P.GE,"Documentação: Leitura e interpretação (caderno de construção, desenho técnico, pasta de testes, CTEs, etc.) e diagramas"
+P.GE.007,P.GE,Poluição de Sistemas
+P.ME.002,P.ME,"Montagem, alinhamento e preservação de equipamentos"
+P.ME.004,P.ME,Procedimento de montagem - Instalação de casco
+P.ME.006,P.ME,Procedimento de controle de torque
+P.ME.007,P.ME,"Procedimento e Preenchimento de CTE B06, B11.19 e D55.6"
+P.ME.008,P.ME,Tecnologia de travamento de fixadores
+P.PI.002,P.PI,"Preparação de superfície, jeateamento, controle de temperatura, ,mistura de tintas, raspagem e proteção"
+P.TU.001,P.TU,Leitura e Interpretação de Isométricos
+P.TU.004,P.TU,Processo de montagem de conexão Ruch
+P.TU.005,P.TU,Processo de montagem de conexão Straub
+P.TU.006,P.TU,Processo de montagem de conexão flangeada - SMB-030510
+P.TU.008,P.TU,Passagem de Argônio
+P.TU.009,P.TU,Blasonagem
+P.TU.010,P.TU,Extrusão
+P.TU.012,P.TU,Leitura de fluxogramas
+P.TU.014,P.TU,Proteção catódica
+P.TU.015,P.TU,Sem nome no cadastro
+Q.IN.001,Q.IN,Rastreabilidade
+Q.IN.002,Q.IN,Discrição Acústica

@@ -1,0 +1,391 @@
+<style>
+#dash-root { --dash-gutter: clamp(16px, 3.5vw, 44px); }
+.sv { max-width: 1320px; margin-inline: auto; font-family: var(--font-anthropic-sans); color: var(--color-fg);
+  --sv-accent: var(--color-ok);
+  --sv-n1: var(--color-bad);
+  --sv-n2: color-mix(in srgb, var(--color-bad) 45%, var(--color-panel));
+  --sv-n3: color-mix(in srgb, var(--color-fg-muted) 30%, var(--color-panel));
+  --sv-n4: color-mix(in srgb, var(--sv-accent) 45%, var(--color-panel));
+  --sv-n5: var(--sv-accent);
+  --sv-miss: color-mix(in srgb, var(--color-fg-muted) 22%, var(--color-panel));
+}
+.sv * { box-sizing: border-box; }
+.sv .sv-num, .sv table { font-variant-numeric: tabular-nums; }
+.sv b, .sv strong { font-weight: var(--cds-font-weight-medium); }
+
+.sv-eyebrow { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: .08em; text-transform: uppercase; display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.sv-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: clamp(2rem, 4vw, 2.9rem); line-height: 1.06; margin: var(--cds-gap-sm) 0 var(--cds-gap-md); letter-spacing: -.01em; }
+.sv-take { font-size: var(--cds-font-size-heading); line-height: 1.55; color: var(--color-fg-muted); max-width: 78ch; margin: 0; min-height: 3.1em; }
+.sv-take b { color: var(--color-fg); }
+.sv-good { color: var(--sv-accent) !important; }
+.sv-bad { color: var(--color-bad) !important; }
+
+/* filter bar */
+.sv-filters { position: sticky; top: 0; z-index: 6; background: var(--color-bg); margin: var(--cds-gap-lg) 0 0; padding: var(--cds-pad-sm) 0; border-bottom: 1px solid var(--color-border-line); display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); align-items: flex-end; }
+.sv-f { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.sv-f label { font-size: 11px; color: var(--color-fg-muted); letter-spacing: .06em; text-transform: uppercase; }
+.sv-f select { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 28px 6px 10px; max-width: 100%; }
+.sv-f-curso select { width: min(28rem, 82vw); }
+.sv-btn { font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.sv-btn:hover { background: var(--color-panel); }
+.sv-scope { margin-left: auto; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-align: right; line-height: 1.4; max-width: 100%; }
+.sv-scope b { color: var(--color-fg); font-size: var(--cds-font-size-body); display: block; }
+.sv-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+.sv-seg button { font: inherit; font-size: var(--cds-font-size-caption); border: 0; background: transparent; color: var(--color-fg-muted); padding: 5px 10px; cursor: pointer; }
+.sv-seg button[aria-pressed=true] { background: var(--color-fg); color: var(--color-bg); }
+
+/* layout */
+.sv-section { margin-top: calc(var(--cds-gap-xl) * 1.3); }
+.sv-sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--cds-gap-md); flex-wrap: wrap; margin-bottom: var(--cds-gap-md); }
+.sv-h2 { font-size: var(--cds-font-size-title); font-family: var(--font-anthropic-serif); font-weight: 400; margin: 0 0 4px; }
+.sv-h2-note { color: var(--color-fg-muted); font-size: var(--cds-font-size-body); margin: 0; max-width: 78ch; line-height: 1.5; }
+.sv-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); }
+.sv-grid-21 { display: grid; gap: var(--cds-gap-md); grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+@media (max-width: 900px) { .sv-grid-21 { grid-template-columns: minmax(0, 1fr); } }
+.sv-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); position: relative; min-width: 0; }
+.sv-card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: var(--cds-gap-sm) var(--cds-gap-md); margin-bottom: var(--cds-gap-md); }
+.sv-card-head > div:first-child { flex: 1 1 16rem; min-width: 0; }
+.sv-card-title { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.sv-card-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 4px 0 0; line-height: 1.5; max-width: 72ch; }
+.sv-png { flex: none; }
+.sv-png svg { width: 13px; height: 13px; }
+.sv-tools { display: flex; gap: var(--cds-gap-sm); align-items: center; flex-wrap: wrap; flex: none; }
+
+/* KPIs */
+.sv-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.5rem), 1fr)); gap: var(--cds-gap-md); padding: 2px; }
+.sv-kpi { display: flex; flex-direction: column; gap: 10px; min-height: 12.5rem; }
+.sv-kpi-label { font-size: 11px; color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: .07em; }
+.sv-kpi-val { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: clamp(2.3rem, 3.6vw, 3rem); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sv-kpi-val small { font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-body); color: var(--color-fg-muted); margin-left: 4px; }
+.sv-kpi-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.45; margin-top: auto; }
+.sv-delta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); min-height: 1.2em; }
+.sv-pips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; height: 10px; }
+.sv-pip { background: var(--sv-n3); border-radius: 3px; overflow: hidden; position: relative; }
+.sv-pip > i { position: absolute; inset: 0 auto 0 0; background: var(--sv-accent); border-radius: 3px; }
+.sv-stack { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px; }
+.sv-stack > span { display: block; height: 100%; min-width: 0; }
+.sv-ring-row { display: flex; align-items: center; gap: var(--cds-gap-md); }
+
+/* charts */
+.sv-chart { position: relative; }
+.sv-chart svg { display: block; overflow: visible; }
+.sv-chart svg text { font-family: var(--font-anthropic-sans); }
+.sv-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; opacity: 0; transition: opacity .12s; z-index: 5; line-height: 1.5; }
+.sv-tip .sv-tip-h { color: var(--cds-text-secondary); margin-bottom: 2px; max-width: 320px; white-space: normal; }
+.sv-tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+.sv-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-md); }
+.sv-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sv-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.sv-legend .sv-lg-line { width: 2px; height: 14px; border-radius: 1px; background: var(--color-fg); }
+.sv-empty { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); padding: var(--cds-pad-md) 0; }
+
+/* dims */
+.sv-dims { display: flex; flex-direction: column; gap: var(--cds-gap-lg); }
+.sv-dim-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.sv-dim-name { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+.sv-dim-val { font-family: var(--font-anthropic-serif); font-size: 1.9rem; line-height: 1; }
+.sv-dim-bar { height: 8px; border-radius: 4px; background: var(--sv-n3); margin: 8px 0 6px; position: relative; overflow: visible; }
+.sv-dim-bar > i { position: absolute; inset: 0 auto 0 0; background: var(--sv-accent); border-radius: 4px; }
+.sv-dim-bar > em { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--color-fg); border-radius: 1px; }
+.sv-dim-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); display: flex; justify-content: space-between; gap: 8px; }
+
+/* knowledge */
+.sv-know { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xl); align-items: flex-start; }
+.sv-know-mat { flex: 1 1 22rem; min-width: 0; position: relative; }
+.sv-know-side { flex: 1 1 18rem; display: flex; flex-direction: column; gap: var(--cds-gap-lg); min-width: 0; }
+.sv-big { font-family: var(--font-anthropic-serif); font-size: clamp(2rem, 3.4vw, 2.7rem); line-height: 1; white-space: nowrap; }
+.sv-big .sv-arrow { color: var(--color-fg-muted); font-size: .7em; margin: 0 .25em; }
+.sv-mini-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--color-fg-muted); margin-bottom: 6px; }
+.sv-dist-row { display: grid; grid-template-columns: 3.6rem minmax(0, 1fr) 3rem; gap: 10px; align-items: center; font-size: var(--cds-font-size-caption); margin-bottom: 6px; }
+.sv-dist-row .sv-stack { height: 18px; border-radius: 4px; }
+.sv-tri { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--cds-gap-sm); }
+.sv-tri div { border-top: 3px solid var(--sv-n3); padding-top: 6px; }
+.sv-tri b { display: block; font-size: 1.25rem; font-family: var(--font-anthropic-serif); font-weight: 400; }
+.sv-tri span { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+
+/* participation */
+.sv-scroll { max-height: 520px; overflow: auto; }
+.sv-part-row { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 4.2rem; gap: 12px; align-items: center; padding: 6px 2px; border-bottom: 1px solid var(--cds-chart-grid); font-size: var(--cds-font-size-caption); cursor: pointer; }
+.sv-part-row:hover { background: color-mix(in srgb, var(--color-fg) 4%, transparent); }
+.sv-part-row.sv-cur { background: color-mix(in srgb, var(--sv-accent) 10%, transparent); }
+.sv-part-row .sv-stack { height: 16px; border-radius: 3px; gap: 1px; }
+.sv-part-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sv-part-name small { color: var(--color-fg-muted); margin-left: 6px; }
+.sv-part-rate { text-align: right; font-weight: var(--cds-font-weight-medium); }
+@media (max-width: 560px) { .sv-part-row { grid-template-columns: minmax(0, 1fr) 3.6rem; } .sv-part-row .sv-stack { grid-column: 1 / -1; order: 3; } }
+
+/* tables */
+.sv-tbl { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); }
+.sv-tbl th { position: sticky; top: 0; background: var(--color-panel); z-index: 1; text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: 8px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; vertical-align: bottom; }
+.sv-tbl th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
+.sv-tbl th[aria-sort] button { color: var(--color-fg); }
+.sv-tbl td { padding: 8px; border-bottom: 1px solid var(--cds-chart-grid); vertical-align: middle; }
+.sv-tbl tbody tr { cursor: pointer; }
+.sv-tbl tbody tr:hover td { background: color-mix(in srgb, var(--color-fg) 4%, transparent); }
+.sv-tbl tr.sv-cur td { background: color-mix(in srgb, var(--sv-accent) 10%, transparent); }
+.sv-tbl .r { text-align: right; }
+.sv-cell-name { max-width: 22rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sv-cell-name small { display: block; color: var(--color-fg-muted); font-size: 11px; }
+.sv-inbar { display: flex; align-items: center; gap: 8px; min-width: 9rem; }
+.sv-inbar span { flex: 1; height: 6px; border-radius: 3px; background: var(--sv-n3); position: relative; overflow: hidden; }
+.sv-inbar span i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--sv-accent); }
+.sv-search { font: inherit; font-size: var(--cds-font-size-caption); padding: 6px 10px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); width: 14rem; max-width: 100%; }
+.sv-tag { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 10px; border: 1px solid var(--color-border-line); color: var(--color-fg-muted); white-space: nowrap; }
+.sv-tag.sv-bad { border-color: color-mix(in srgb, var(--color-bad) 50%, transparent); }
+.sv-tag.sv-good { border-color: color-mix(in srgb, var(--sv-accent) 50%, transparent); }
+.sv-tblnote { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-sm); }
+.sv-hidecol { }
+@media (max-width: 760px) { .sv-tbl .sv-opt { display: none; } }
+
+/* heat */
+.sv-heat { border-collapse: separate; border-spacing: 3px; width: 100%; font-size: var(--cds-font-size-caption); }
+.sv-heat th { font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); text-align: center; padding: 4px 4px 8px; vertical-align: bottom; line-height: 1.25; position: sticky; top: 0; background: var(--color-panel); z-index: 1; min-width: 4.2rem; }
+.sv-heat th:first-child { text-align: left; min-width: 12rem; }
+.sv-heat td { text-align: center; padding: 9px 4px; border-radius: 5px; }
+.sv-heat td:first-child { text-align: left; padding-left: 0; max-width: 18rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sv-heat td.sv-heat-idx { font-weight: var(--cds-font-weight-medium); }
+.sv-heat tbody tr { cursor: pointer; }
+.sv-heat tr.sv-cur td:first-child { color: var(--sv-accent); font-weight: var(--cds-font-weight-medium); }
+.sv-heat-scale { display: flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-sm); flex-wrap: wrap; }
+.sv-heat-scale i { height: 8px; width: 140px; border-radius: 4px; background: linear-gradient(90deg, color-mix(in srgb, var(--color-bad) 70%, transparent), transparent 50%, color-mix(in srgb, var(--sv-accent) 70%, transparent)); display: inline-block; }
+
+/* exec */
+.sv-exec { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: var(--cds-gap-md); }
+.sv-exec h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); display: flex; align-items: center; gap: 8px; }
+.sv-exec h3 i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.sv-exec ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--cds-gap-md); min-height: 8rem; }
+.sv-exec li { font-size: var(--cds-font-size-body); line-height: 1.55; padding-left: var(--cds-pad-sm); border-left: 2px solid var(--color-border-line); }
+
+.sv-preview { margin: 0 0 var(--cds-gap-md); padding: var(--cds-pad-md); border: 1px dashed var(--color-border-line); border-radius: var(--cds-radius); display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+.sv-preview img { max-width: 100%; max-height: 360px; object-fit: contain; align-self: flex-start; border: 1px solid var(--color-border-line); border-radius: 4px; }
+.sv-preview p { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.sv-preview div { display: flex; gap: var(--cds-gap-sm); }
+.sv-preview a { color: var(--color-fg); }
+
+.sv-foot { margin-top: var(--cds-gap-xl); padding-top: var(--cds-pad-md); border-top: 1px solid var(--color-border-line); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.65; }
+.sv-foot p { margin: 0 0 6px; }
+.sv-fail { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); min-height: inherit; }
+.sv-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes svRise { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+  .sv-in { animation: svRise var(--cds-dur-slow) var(--cds-ease-out) both; }
+  @keyframes svFade { from { opacity: 0; } to { opacity: 1; } }
+  .sv-fade { animation: svFade var(--cds-dur-slow) var(--cds-ease-out) both; }
+}
+</style>
+
+<div class="sv" id="topo">
+  <header id="cabecalho">
+    <div class="sv-eyebrow"><span>Ficha de avaliação de tipo de reação</span><span id="sv-eyebrow-n" data-source="cursos escopos"></span></div>
+    <h1 class="sv-title">Avaliação de reação dos treinamentos</h1>
+    <p class="sv-take dash-skeleton" id="sv-take"></p>
+  </header>
+
+  <nav class="sv-filters" id="filtros" aria-label="Filtros">
+    <div class="sv-f"><label for="f-area">Área</label><select id="f-area" data-source="cursos"></select></div>
+    <div class="sv-f sv-f-curso"><label for="f-curso">Curso</label><select id="f-curso" data-source="cursos"></select></div>
+    <div class="sv-f"><label for="f-turma">Turma</label><select id="f-turma" data-source="escopos"></select></div>
+    <div class="sv-f"><label for="f-min">Base mínima nas comparações</label>
+      <select id="f-min"><option value="1">Todas</option><option value="5">≥ 5 fichas</option><option value="10">≥ 10 fichas</option><option value="30">≥ 30 fichas</option></select></div>
+    <button class="sv-btn" id="f-reset" type="button">Limpar filtros</button>
+    <div class="sv-scope" id="sv-scope"></div>
+  </nav>
+
+  <section class="sv-section" id="indicadores">
+    <div class="sv-sec-head">
+      <div><h2 class="sv-h2">Visão geral</h2><p class="sv-h2-note">Os cinco números que resumem o recorte selecionado. Fora do recorte geral, cada indicador mostra a diferença em relação a todos os cursos.</p></div>
+      <button class="sv-btn sv-png" data-export="kpis" data-name="visao-geral" type="button"></button>
+    </div>
+    <div class="sv-kpis" id="kpis">
+      <div class="sv-card sv-kpi">
+        <div class="sv-kpi-label">Índice de satisfação</div>
+        <div class="sv-kpi-val"><span id="k-indice" class="sv-k" data-field="indice">—</span><small>/ 5</small></div>
+        <div class="sv-pips" id="k-pips" data-source="escopos"></div>
+        <div class="sv-delta" id="d-indice"></div>
+        <div class="sv-kpi-note">Média das 10 perguntas de reação, por ficha</div>
+      </div>
+      <div class="sv-card sv-kpi">
+        <div class="sv-kpi-label">Respostas "Ótimo"</div>
+        <div class="sv-kpi-val"><span id="k-otimo" class="sv-k" data-field="pct_otimo">—</span><small>%</small></div>
+        <div class="sv-stack" id="k-dist" data-source="escopos"></div>
+        <div class="sv-delta" id="d-otimo"></div>
+        <div class="sv-kpi-note"><span id="k-atebom" class="sv-k" data-field="pct_ate_bom">—</span>% das respostas ficaram em "Bom" ou abaixo</div>
+      </div>
+      <div class="sv-card sv-kpi">
+        <div class="sv-kpi-label">Fichas 100% Ótimo</div>
+        <div class="sv-kpi-val"><span id="k-max" class="sv-k" data-field="pct_nota_maxima">—</span><small>%</small></div>
+        <div class="sv-pips" id="k-max-bar" data-source="escopos" style="grid-template-columns: 1fr"></div>
+        <div class="sv-delta" id="d-max"></div>
+        <div class="sv-kpi-note">Fichas com nota 5 em todas as perguntas. Quanto maior, menos a média diferencia cursos</div>
+      </div>
+      <div class="sv-card sv-kpi">
+        <div class="sv-kpi-label">Taxa de resposta</div>
+        <div class="sv-ring-row">
+          <div class="sv-kpi-val"><span id="k-taxa" class="sv-k" data-field="taxa_resposta">—</span><small>%</small></div>
+          <span data-source="escopos" style="display:inline-flex"><svg id="k-ring" width="54" height="54" viewBox="0 0 54 54"></svg></span>
+        </div>
+        <div class="sv-delta" id="d-taxa"></div>
+        <div class="sv-kpi-note"><span id="k-pre" class="sv-k" data-field="preenchidas">—</span> fichas preenchidas de <span id="k-esperadas" data-source="escopos">—</span> esperadas · <span id="k-fal" class="sv-k" data-field="faltosos">—</span> alunos faltosos</div>
+      </div>
+      <div class="sv-card sv-kpi">
+        <div class="sv-kpi-label">Ganho de conhecimento</div>
+        <div class="sv-kpi-val"><span id="k-ganho" class="sv-k" data-field="ganho">—</span></div>
+        <div class="sv-delta"><span id="k-antes" class="sv-k" data-field="conhec_antes">—</span> antes → <span id="k-apos" class="sv-k" data-field="conhec_apos">—</span> após (escala 1–5)</div>
+        <div class="sv-kpi-note"><span id="k-evol" class="sv-k" data-field="pct_evoluiu">—</span>% declararam saber mais ao fim do curso</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sv-section" id="excelencia">
+    <div class="sv-sec-head">
+      <div><h2 class="sv-h2">Distância até a excelência</h2><p class="sv-h2-note">Como quase todas as notas são altas, o eixo está ancorado na fronteira do "Ótimo": à direita, quem deu nota máxima; à esquerda, todas as outras notas, empilhadas da mais próxima à mais distante.</p></div>
+    </div>
+    <div class="sv-grid-21">
+      <div class="sv-card" id="card-itens">
+        <div class="sv-card-head">
+          <div><h3 class="sv-card-title">As 10 perguntas de reação</h3><p class="sv-card-note" id="itens-note">Percentual de respostas por nota em cada pergunta da ficha.</p></div>
+          <div class="sv-tools sv-noexport">
+            <div class="sv-seg" role="group" aria-label="Ordem"><button type="button" data-ordem="form">Ficha</button><button type="button" data-ordem="rank">Ranking</button></div>
+            <button class="sv-btn sv-png" data-export="card-itens" data-name="perguntas" type="button"></button>
+          </div>
+        </div>
+        <div class="sv-legend" id="lg-itens"></div>
+        <div class="sv-chart dash-skeleton" id="chart-itens" data-source="itens" style="min-height: 520px"></div>
+      </div>
+      <div class="sv-card" id="card-dims">
+        <div class="sv-card-head">
+          <div><h3 class="sv-card-title">Por dimensão</h3><p class="sv-card-note">Média e % de "Ótimo" nos três blocos da ficha. A marca vertical é a referência de todos os cursos.</p></div>
+          <button class="sv-btn sv-png sv-noexport" data-export="card-dims" data-name="dimensoes" type="button"></button>
+        </div>
+        <div class="sv-dims dash-skeleton" id="dims" data-source="escopos" style="min-height: 300px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sv-section" id="aprendizagem">
+    <div class="sv-sec-head">
+      <div><h2 class="sv-h2">Aprendizagem percebida</h2><p class="sv-h2-note">"Seu conhecimento sobre os temas abordados": cada ficha informa uma nota antes e outra após o curso. A matriz mostra para onde cada nível de partida se moveu.</p></div>
+    </div>
+    <div class="sv-card" id="card-conhecimento">
+      <div class="sv-card-head">
+        <div><h3 class="sv-card-title">Conhecimento antes × após</h3><p class="sv-card-note">Cada célula é a parcela de fichas com aquela combinação. Acima da diagonal, evolução; na diagonal, sem mudança.</p></div>
+        <button class="sv-btn sv-png sv-noexport" data-export="card-conhecimento" data-name="conhecimento" type="button"></button>
+      </div>
+      <div class="sv-know" style="min-height: 360px">
+        <div class="sv-know-mat sv-chart dash-skeleton" id="chart-matriz-conh" data-source="conhecimento"></div>
+        <div class="sv-know-side" id="know-side">
+          <div><div class="sv-mini-lbl">Média de conhecimento</div><div class="sv-big"><span id="kn-antes" class="sv-k" data-field="conhec_antes">—</span><span class="sv-arrow">→</span><span id="kn-apos" class="sv-k sv-good" data-field="conhec_apos">—</span></div></div>
+          <div class="sv-tri">
+            <div style="border-color: var(--sv-accent)"><b id="kn-ev" class="sv-k" data-field="pct_evoluiu">—</b><span>evoluíram</span></div>
+            <div><b id="kn-ig" class="sv-k" data-field="pct_igual">—</b><span>sem mudança</span></div>
+            <div style="border-color: var(--color-bad)"><b id="kn-rg" class="sv-k" data-field="pct_regrediu">—</b><span>regrediram</span></div>
+          </div>
+          <div><div class="sv-mini-lbl">Distribuição das notas</div><div id="kn-dist" class="sv-chart" data-source="conhecimento"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sv-section" id="diagnostico">
+    <div class="sv-sec-head">
+      <div><h2 class="sv-h2">Diagnóstico</h2><p class="sv-h2-note">Onde agir primeiro e quais cursos se afastam do padrão de forma estatisticamente consistente, e não por acaso de amostra pequena.</p></div>
+    </div>
+    <div class="sv-grid">
+      <div class="sv-card" id="card-prioridade">
+        <div class="sv-card-head">
+          <div><h3 class="sv-card-title">Matriz de prioridades</h3><p class="sv-card-note">Excelência (% Ótimo) × influência (correlação de cada pergunta com a média das demais). O quadrante sombreado reúne o que mais pesa na percepção geral e menos atinge o "Ótimo".</p></div>
+          <button class="sv-btn sv-png sv-noexport" data-export="card-prioridade" data-name="prioridades" type="button"></button>
+        </div>
+        <div class="sv-chart dash-skeleton" id="chart-prioridade" data-source="itens" style="min-height: 360px"></div>
+      </div>
+      <div class="sv-card" id="card-funil">
+        <div class="sv-card-head">
+          <div><h3 class="sv-card-title">Funil de controle dos cursos</h3><p class="sv-card-note">Índice de cada curso pelo número de fichas. As faixas mostram a variação esperada por acaso (95% e 99,8%) em torno da média geral; pontos fora delas são desvios reais. Clique num ponto para filtrar o curso.</p></div>
+          <button class="sv-btn sv-png sv-noexport" data-export="card-funil" data-name="funil-cursos" type="button"></button>
+        </div>
+        <div class="sv-chart dash-skeleton" id="chart-funil" data-source="escopos" style="min-height: 360px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sv-section" id="comparativo">
+    <div class="sv-sec-head">
+      <div><h2 class="sv-h2">Comparativo</h2><p class="sv-h2-note" id="comp-note">Cada linha é um curso (ou turma, quando um curso está selecionado). Clique numa linha para detalhar.</p></div>
+    </div>
+    <div class="sv-card" id="card-heat">
+      <div class="sv-card-head">
+        <div><h3 class="sv-card-title">Mapa de calor por pergunta</h3><p class="sv-card-note" id="heat-note">A cor mostra a distância de cada valor para a referência de todos os cursos na mesma pergunta.</p></div>
+        <div class="sv-tools sv-noexport">
+          <div class="sv-seg" role="group" aria-label="Métrica"><button type="button" data-metrica="media">Média</button><button type="button" data-metrica="otimo">% Ótimo</button></div>
+          <button class="sv-btn sv-png" data-export="card-heat" data-name="mapa-de-calor" type="button"></button>
+        </div>
+      </div>
+      <div class="sv-scroll dash-skeleton" id="heat-wrap" data-source="itens escopos" style="min-height: 240px"></div>
+      <div class="sv-heat-scale"><span>abaixo da referência</span><i></i><span>acima da referência</span><span id="heat-hidden"></span></div>
+    </div>
+
+    <div class="sv-card" id="card-ranking" style="margin-top: var(--cds-gap-md)">
+      <div class="sv-card-head">
+        <div><h3 class="sv-card-title" id="rank-title">Ranking</h3><p class="sv-card-note">Clique nos títulos para ordenar. A barra do índice usa a mesma escala em todas as linhas.</p></div>
+        <div class="sv-tools sv-noexport">
+          <input class="sv-search" id="rank-search" type="search" placeholder="Buscar…" aria-label="Buscar no ranking">
+          <button class="sv-btn sv-png" data-export="card-ranking" data-name="ranking" type="button"></button>
+        </div>
+      </div>
+      <div class="sv-scroll dash-skeleton" id="rank-wrap" style="max-height: 620px; min-height: 240px">
+        <table class="sv-tbl" id="tabela-ranking" data-source="escopos" data-row-key="escopo">
+          <thead><tr id="rank-head"></tr></thead>
+          <tbody id="rank-body"></tbody>
+        </table>
+      </div>
+      <div class="sv-tblnote" id="rank-foot"></div>
+    </div>
+  </section>
+
+  <section class="sv-section" id="participacao">
+    <div class="sv-sec-head">
+      <div><h2 class="sv-h2">Coleta e participação</h2><p class="sv-h2-note">A confiabilidade dos resultados depende de quantas fichas voltam preenchidas. Taxa de resposta = preenchidas ÷ (preenchidas + não preenchidas); faltosos ficam fora da conta.</p></div>
+    </div>
+    <div class="sv-grid-21">
+      <div class="sv-card" id="card-participacao">
+        <div class="sv-card-head">
+          <div><h3 class="sv-card-title" id="part-title">Situação das fichas</h3><p class="sv-card-note">Ordenado da menor para a maior taxa de resposta. Clique numa linha para filtrar.</p></div>
+          <button class="sv-btn sv-png sv-noexport" data-export="card-participacao" data-name="participacao" type="button"></button>
+        </div>
+        <div class="sv-legend" id="lg-part"></div>
+        <div class="sv-scroll dash-skeleton" id="part-list" data-source="escopos" style="max-height: 520px; min-height: 240px"></div>
+      </div>
+      <div class="sv-card" id="card-qualidade">
+        <div class="sv-card-head">
+          <div><h3 class="sv-card-title">Qualidade da base</h3><p class="sv-card-note">Pontos a considerar antes de tirar conclusões. Vale para a base inteira.</p></div>
+          <button class="sv-btn sv-png sv-noexport" data-export="card-qualidade" data-name="qualidade-base" type="button"></button>
+        </div>
+        <table class="sv-tbl dash-skeleton" id="tabela-qualidade" data-source="qualidade" data-row-key="indicador" style="min-height: 240px">
+          <thead><tr><th data-field="indicador">Indicador</th><th data-field="valor" class="r">Valor</th><th data-field="detalhe">Detalhe</th></tr></thead>
+          <tbody id="qual-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sv-section" id="leitura">
+    <div class="sv-sec-head">
+      <div><h2 class="sv-h2">Leitura executiva</h2><p class="sv-h2-note">Conclusões escritas a partir dos indicadores do recorte selecionado. Mudam com os filtros.</p></div>
+      <button class="sv-btn sv-png" data-export="exec" data-name="leitura-executiva" type="button"></button>
+    </div>
+    <div class="sv-exec" id="exec">
+      <div class="sv-card"><div class="sv-card-head"><h3><i style="background: var(--sv-accent)"></i>Pontos fortes</h3></div><ul id="ex-fortes" class="dash-skeleton"></ul></div>
+      <div class="sv-card"><div class="sv-card-head"><h3><i style="background: var(--color-bad)"></i>Pontos de atenção</h3></div><ul id="ex-atencao" class="dash-skeleton"></ul></div>
+      <div class="sv-card"><div class="sv-card-head"><h3><i style="background: var(--color-fg-muted)"></i>Próximos passos</h3></div><ul id="ex-acoes" class="dash-skeleton"></ul></div>
+    </div>
+  </section>
+
+  <footer class="sv-foot" id="metodologia">
+    <p><b>Escala.</b> 1 Fraco · 2 Regular · 3 Bom · 4 Muito bom · 5 Ótimo, como na ficha impressa. Perguntas de reação: Programa e metodologia (3), Organização (4), Instrutor (3). "Seu conhecimento antes/após o curso" é tratado à parte, como aprendizagem percebida.</p>
+    <p><b>Índice de satisfação</b> = média das perguntas respondidas em cada ficha, depois a média entre as fichas. <b>% Ótimo</b> = parcela das respostas com nota 5. <b>Influência</b> = correlação de Pearson entre a nota da pergunta e a média das outras perguntas da mesma ficha (calculada com 10 ou mais fichas).</p>
+    <p><b>Funil de controle.</b> Limites = índice geral ± 1,96 e ± 3,09 desvios-padrão das fichas ÷ √n. Um curso abaixo da faixa externa tem resultado inferior que dificilmente se explica por acaso.</p>
+    <p><b>Base.</b> Apenas fichas com situação "Relatório preenchido" entram nas notas. Respostas marcadas em fichas de alunos faltosos foram desconsideradas. As áreas são o prefixo do código do curso (ex.: C.OP).</p>
+  </footer>
+</div>
