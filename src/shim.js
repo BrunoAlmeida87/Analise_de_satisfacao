@@ -29,14 +29,15 @@
     }
   } catch (e) { /* ignore */ }
 
-  const DEFAULTS = { area: null, curso: null, turma: null, minN: 5, metrica: 'media', ordem: 'form' };
+  const DEFAULTS = { areas: [], cursos: [], turmas: [], onlyFilled: false, grp: 'auto', minN: 5, metrica: 'media', ordem: 'form', rmetric: 'media' };
+  const LISTS = ['areas', 'cursos', 'turmas'];
   let params = { ...DEFAULTS };
-  try { const h = new URLSearchParams(location.hash.slice(1)); for (const [k, v] of h) if (k in DEFAULTS) params[k] = v === '' ? null : (k === 'minN' || k === 'turma') ? Number(v) : v; } catch (e) { /* ignore */ }
+  try { const h = new URLSearchParams(location.hash.slice(1)); for (const [k, v] of h) if (k in DEFAULTS) params[k] = LISTS.includes(k) ? v.split(',').filter(Boolean) : k === 'minN' ? Number(v) : k === 'onlyFilled' ? v === 'true' : v; } catch (e) { /* ignore */ }
   const subs = [];
   let pending = false;
   const run = () => { pending = false; subs.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } }); };
   const schedule = () => { if (!pending) { pending = true; requestAnimationFrame(run); } };
-  const syncHash = () => { const h = new URLSearchParams(); Object.keys(DEFAULTS).forEach((k) => { const v = params[k]; if (v != null && v !== DEFAULTS[k]) h.set(k, v); }); history.replaceState(null, '', h.toString() ? '#' + h.toString() : location.pathname + location.search); };
+  const syncHash = () => { const h = new URLSearchParams(); Object.keys(DEFAULTS).forEach((k) => { const v = params[k]; if (LISTS.includes(k)) { if (Array.isArray(v) && v.length) h.set(k, v.join(',')); } else if (v != null && v !== DEFAULTS[k]) h.set(k, v); }); try { history.replaceState(null, '', h.toString() ? '#' + h.toString() : location.pathname + location.search); } catch (e) { /* file:// may block */ } };
   const runCalc = ({ id, inputs, fn }) => { const out = fn(...inputs.map((i) => DS[i].data)); DS[id] = { data: out, columns: out.length ? Object.keys(out[0]) : [] }; };
   window.dash = {
     colors: ['var(--color-ok)'],
@@ -50,7 +51,7 @@
     setLink: () => {},
     refresh: () => {},
   };
-  const recompute = () => { CALCS.forEach(runCalc); params = { ...params, area: null, curso: null, turma: null }; syncHash(); schedule(); };
+  const recompute = () => { CALCS.forEach(runCalc); params = { ...params, areas: [], cursos: [], turmas: [] }; syncHash(); schedule(); };
   window.SV_BASE_INFO = () => info;
   window.SV_ORIG_CURSOS = () => ORIG.cursos.data;
   window.SV_SET_BASE = ({ relatorios, cursos }, file) => {

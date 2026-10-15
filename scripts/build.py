@@ -19,7 +19,7 @@ markup = MARKUP
 rel = (DATA / 'relatorios.csv').read_text(encoding='utf-8')
 cur = (DATA / 'cursos.csv').read_text(encoding='utf-8')
 assert '</script' not in rel + cur
-js = {n: (SRC / f'{n}.js').read_text(encoding='utf-8') for n in ('shim', 'calcs', 'i18n', 'upload', 'app')}
+js = {n: (SRC / f'{n}.js').read_text(encoding='utf-8') for n in ('shim', 'i18n', 'upload', 'app')}
 app = js['app']
 
 page = f'''<!doctype html>
@@ -45,9 +45,6 @@ page = f'''<!doctype html>
 <script>window.SV_STANDALONE = true;
 {js['shim']}</script>
 <script>
-{js['calcs']}
-</script>
-<script>
 {js['i18n']}
 </script>
 <script>
@@ -66,16 +63,17 @@ CDN = '<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"><
 assert CDN in page
 d3js = (ROOT / 'vendor' / 'd3.min.js').read_text(encoding='utf-8')
 xlsxjs = (ROOT / 'vendor' / 'xlsx.full.min.js').read_text(encoding='utf-8')
-assert '</script' not in d3js + xlsxjs
+pdfjs = (ROOT / 'vendor' / 'jspdf.umd.min.js').read_text(encoding='utf-8')
+assert '</script' not in d3js + xlsxjs + pdfjs
 offline = page.replace(CDN, '<script>\n' + d3js + '\n</script>').replace(
     '<script type="text/csv" data-dataset="relatorios">',
-    '<script type="text/x-lib" id="lib-xlsx">\n' + xlsxjs + '\n</script>\n<script type="text/csv" data-dataset="relatorios">', 1)
+    '<script type="text/x-lib" id="lib-xlsx">\n' + xlsxjs + '\n</script>\n<script type="text/x-lib" id="lib-jspdf">\n' + pdfjs + '\n</script>\n<script type="text/csv" data-dataset="relatorios">', 1)
 (ROOT / 'painel_offline.html').write_text(offline, encoding='utf-8')
 print(f'painel_offline.html: {len(offline.encode()) / 1024:.0f} KB')
 print(f'index.html: {len(page.encode()) / 1024:.0f} KB')
 
 # Página para o dashboard publicado no Claude (sem runtime próprio nem leitor de planilha)
-artifact = MARKUP + '\n<script>\n' + js['calcs'] + '\n</script>\n<script>\n' + js['i18n'] + '\n</script>\n<script>\n' + js['app'] + '\n</script>\n'
+artifact = MARKUP + '\n<script>\n' + js['i18n'] + '\n</script>\n<script>\n' + js['app'] + '\n</script>\n'
 (ROOT / 'build').mkdir(exist_ok=True)
 (ROOT / 'build' / 'artifact_page.html').write_text(artifact, encoding='utf-8')
 print(f'build/artifact_page.html: {len(artifact.encode()) / 1024:.0f} KB')

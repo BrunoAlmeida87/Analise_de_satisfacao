@@ -1,6 +1,6 @@
 <style>
-#dash-root { --dash-gutter: clamp(16px, 3.5vw, 44px); }
-.sv { max-width: 1320px; margin-inline: auto; font-family: var(--font-anthropic-sans); color: var(--color-fg); position: relative;
+#dash-root { --dash-gutter: clamp(8px, 1.4vw, 20px); }
+.sv { max-width: 1880px; margin-inline: auto; font-family: var(--font-anthropic-sans); color: var(--color-fg); position: relative;
   --sv-accent: var(--color-ok);
   --sv-n1: var(--color-bad);
   --sv-n2: color-mix(in srgb, var(--color-bad) 45%, var(--color-panel));
@@ -70,14 +70,14 @@
 .sv-upmsg { font-size: var(--cds-font-size-caption); margin-top: var(--cds-gap-sm); min-height: 1.2em; }
 
 /* layout */
-.sv-section { margin-top: calc(var(--cds-gap-xl) * 1.3); scroll-margin-top: 150px; }
+.sv-section { margin-top: var(--cds-gap-xl); scroll-margin-top: 170px; }
 .sv-sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--cds-gap-md); flex-wrap: wrap; margin-bottom: var(--cds-gap-md); }
 .sv-h2 { font-size: var(--cds-font-size-title); font-family: var(--font-anthropic-serif); font-weight: 400; margin: 0 0 4px; }
 .sv-h2-note { color: var(--color-fg-muted); font-size: var(--cds-font-size-body); margin: 0; max-width: 80ch; line-height: 1.5; }
-.sv-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); }
-.sv-grid-21 { display: grid; gap: var(--cds-gap-md); grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.sv-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); }
+.sv-grid-21 { display: grid; gap: 12px; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
 @media (max-width: 900px) { .sv-grid-21 { grid-template-columns: minmax(0, 1fr); } }
-.sv-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); position: relative; min-width: 0; }
+.sv-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 16px; position: relative; min-width: 0; }
 .sv-card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: var(--cds-gap-sm) var(--cds-gap-md); margin-bottom: var(--cds-gap-md); }
 .sv-card-head > div:first-child { flex: 1 1 16rem; min-width: 0; }
 .sv-card-title { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; display: flex; align-items: center; gap: 6px; }
@@ -85,7 +85,7 @@
 .sv-tools { display: flex; gap: var(--cds-gap-sm); align-items: center; flex-wrap: wrap; flex: 0 1 auto; max-width: 100%; }
 
 /* KPIs */
-.sv-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.5rem), 1fr)); gap: var(--cds-gap-md); padding: 2px; }
+.sv-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.5rem), 1fr)); gap: 12px; padding: 2px; }
 .sv-kpi { display: flex; flex-direction: column; gap: 10px; min-height: 12.5rem; }
 .sv-kpi-label { font-size: 11px; color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: .07em; display: flex; align-items: center; gap: 6px; }
 .sv-kpi-val { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: clamp(2.3rem, 3.6vw, 3rem); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -223,30 +223,80 @@
   .sv-fade { animation: svFade var(--cds-dur-slow) var(--cds-ease-out) both; }
 }
 @media print {
-  .sv-sticky, .sv-actions, .sv-png, .sv-csv, .sv-tools, .sv-panel, .sv-i, .sv-preview, .sv-theme, .sv-search { display: none !important; }
+  .sv-sticky, .sv-actions, .sv-exp, .sv-tools, .sv-panel, .sv-i, .sv-preview, .sv-search, .sv-how, #view-dados { display: none !important; }
+  .sv.sv-printing * { visibility: hidden; }
+  .sv.sv-printing .sv-print-target, .sv.sv-printing .sv-print-target * { visibility: visible; }
+  .sv.sv-printing .sv-print-target { position: absolute; left: 0; top: 0; width: 100%; }
   .sv-section { break-inside: auto; margin-top: 18px; }
   .sv-card, .sv-kpi, .sv-qcard { break-inside: avoid; box-shadow: none; }
   .sv-scroll { max-height: none !important; overflow: visible !important; }
   .sv-tbl th, .sv-heat th { position: static !important; }
   .sv-grid-21 { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* v3: tabs, multiselect, export menu, data view, how-to */
+.sv-tabs { display: inline-flex; gap: 2px; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 3px; }
+.sv-tabs button { font: inherit; font-size: var(--cds-font-size-body); border: 0; background: transparent; color: var(--color-fg-muted); padding: 5px 16px; border-radius: 999px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.sv-tabs button[aria-selected=true] { background: var(--color-fg); color: var(--color-bg); }
+.sv-tabs .sv-badge { font-size: 11px; padding: 0 6px; border-radius: 999px; background: var(--sv-accent); color: var(--color-bg); }
+.sv-barrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding-top: 8px; }
+.sv-ms { position: relative; }
+.sv-ms-btn { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 30px 6px 10px; min-width: 10rem; max-width: min(24rem, 86vw); text-align: left; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; }
+.sv-ms-btn::after { content: ""; position: absolute; right: 11px; top: 50%; width: 6px; height: 6px; border-right: 1.5px solid var(--color-fg-muted); border-bottom: 1.5px solid var(--color-fg-muted); transform: translateY(-70%) rotate(45deg); }
+.sv-ms-btn.sv-on { border-color: var(--sv-accent); box-shadow: inset 0 0 0 1px var(--sv-accent); }
+.sv-ms-pop { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; width: min(30rem, 92vw); background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.sv-ms-pop[hidden] { display: none; }
+.sv-ms-pop input[type=search] { font: inherit; font-size: var(--cds-font-size-caption); padding: 6px 8px; border: 1px solid var(--color-border-line); border-radius: 6px; background: var(--color-bg); color: var(--color-fg); }
+.sv-ms-acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.sv-ms-acts button { font: inherit; font-size: 11px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+.sv-ms-list { max-height: 320px; overflow: auto; display: flex; flex-direction: column; }
+.sv-ms-list label { display: flex; gap: 8px; align-items: center; font-size: var(--cds-font-size-caption); padding: 4px 4px; border-radius: 4px; cursor: pointer; color: var(--color-fg); text-transform: none; letter-spacing: 0; }
+.sv-ms-list label:hover { background: color-mix(in srgb, var(--color-fg) 5%, transparent); }
+.sv-ms-list label small { margin-left: auto; color: var(--color-fg-muted); white-space: nowrap; }
+.sv-ms-list label.sv-dim { opacity: .55; }
+.sv-ms-list .sv-ms-grp { font-size: 11px; color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: .06em; padding: 6px 4px 2px; }
+.sv-check { display: inline-flex; gap: 6px; align-items: center; font-size: var(--cds-font-size-caption); color: var(--color-fg); cursor: pointer; }
+.sv-exp { position: relative; flex: none; }
+.sv-exp-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: 4px; display: flex; flex-direction: column; min-width: 9rem; }
+.sv-exp-menu[hidden] { display: none; }
+.sv-exp-menu button { font: inherit; font-size: var(--cds-font-size-caption); text-align: left; border: 0; background: transparent; color: var(--color-fg); padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+.sv-exp-menu button:hover { background: color-mix(in srgb, var(--color-fg) 6%, transparent); }
+.sv-how { margin-top: 10px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.55; }
+.sv-how summary { cursor: pointer; color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.sv-how p { margin: 6px 0 0; max-width: 95ch; }
+.sv-clickable { cursor: pointer; }
+.sv-hint { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: 6px; }
+.sv [hidden] { display: none !important; }
+.sv-dhead { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: flex-start; margin: 16px 0 12px; }
+.sv-dhead h2 { margin: 0; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); }
+.sv-dsel { font-size: var(--cds-font-size-body); color: var(--color-fg); margin-top: 6px; }
+.sv-dmeta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: 4px; }
+.sv-dsum { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+.sv-chip { font: inherit; font-size: 11px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); border-radius: 999px; padding: 3px 9px; cursor: pointer; white-space: nowrap; }
+.sv-chip b { margin-left: 4px; }
+.sv-chip[aria-pressed=true] { background: var(--color-fg); color: var(--color-bg); }
+.sv-dtbl td, .sv-dtbl th { padding: 6px 6px; }
+.sv-dtbl td.sv-note { text-align: center; border-radius: 4px; }
+.sv-dtbl th.sv-hl, .sv-dtbl td.sv-hl { box-shadow: inset 0 0 0 2px var(--sv-accent); }
+.sv-dtbl tbody tr { cursor: default; }
 </style>
 
 <div class="sv" id="topo">
   <header id="cabecalho">
     <div class="sv-topbar">
-      <div class="sv-eyebrow"><span data-i18n="eyebrow"></span><span id="sv-eyebrow-n" data-source="cursos escopos"></span><span id="sv-base-label"></span></div>
+      <div class="sv-eyebrow"><span data-i18n="eyebrow"></span><span id="sv-eyebrow-n" data-source="relatorios cursos"></span><span id="sv-base-label"></span></div>
       <div class="sv-actions">
         <div class="sv-seg" role="group" aria-label="Idioma / Language"><button type="button" data-lang="pt">PT</button><button type="button" data-lang="en">EN</button></div>
         <button class="sv-btn" id="btn-upload" type="button" aria-expanded="false" aria-controls="upload-panel" hidden><span data-i18n="btn_upload"></span></button>
         <button class="sv-btn" id="btn-colors" type="button" aria-expanded="false" aria-controls="colors-panel"><span data-i18n="btn_colors"></span></button>
         <button class="sv-btn" id="btn-csv" type="button" data-source="relatorios"><span data-i18n="btn_csv"></span></button>
+        <button class="sv-btn" id="btn-pdf-all" type="button"><span data-i18n="btn_pdf_all"></span></button>
         <button class="sv-btn" id="btn-print" type="button"><span data-i18n="btn_print"></span></button>
         <button class="sv-btn" id="btn-theme" type="button" hidden><span data-i18n="btn_theme"></span></button>
       </div>
     </div>
     <h1 class="sv-title" data-i18n="title"></h1>
-    <p class="sv-take dash-skeleton" id="sv-take"></p>
+    <p class="sv-take dash-skeleton" id="sv-take" data-source="relatorios"></p>
   </header>
 
   <section class="sv-panel" id="upload-panel" hidden>
@@ -281,59 +331,67 @@
   </section>
 
   <div class="sv-sticky" id="barra">
+    <div class="sv-barrow">
+      <div class="sv-tabs" role="tablist"><button type="button" role="tab" data-view="painel"><span data-i18n="tab_painel"></span></button><button type="button" role="tab" data-view="dados"><span data-i18n="tab_dados"></span><span class="sv-badge" id="dados-n" hidden></span></button></div>
+      <button class="sv-btn" id="f-back" type="button" disabled><span data-i18n="btn_back"></span></button>
+      <div class="sv-scope" id="sv-scope"></div>
+    </div>
     <nav class="sv-filters" id="filtros" aria-label="Filtros">
-      <div class="sv-f"><label for="f-area" data-i18n="f_area"></label><select id="f-area" data-source="cursos"></select></div>
-      <div class="sv-f sv-f-curso"><label for="f-curso" data-i18n="f_curso"></label><select id="f-curso" data-source="cursos"></select></div>
-      <div class="sv-f"><label for="f-turma" data-i18n="f_turma"></label><select id="f-turma" data-source="escopos"></select></div>
+      <div class="sv-f"><span data-i18n="f_areas"></span><div class="sv-ms" id="ms-area" data-source="cursos"></div></div>
+      <div class="sv-f"><span data-i18n="f_cursos"></span><div class="sv-ms" id="ms-curso" data-source="cursos"></div></div>
+      <div class="sv-f"><span data-i18n="f_turmas"></span><div class="sv-ms" id="ms-turma" data-source="relatorios"></div></div>
+      <div class="sv-f"><span><label for="f-grp" data-i18n="f_grp"></label><button class="sv-i" type="button" data-tip="grp">i</button></span><select id="f-grp"></select></div>
       <div class="sv-f"><span><label for="f-min" data-i18n="f_min"></label><button class="sv-i" type="button" data-tip="base_min">i</button></span><select id="f-min"></select></div>
       <div class="sv-f"><label for="f-clang" data-i18n="f_clang"></label><select id="f-clang"><option value="pt"></option><option value="en"></option></select></div>
-      <button class="sv-btn" id="f-reset" type="button"><span data-i18n="btn_reset"></span></button>
-      <div class="sv-scope" id="sv-scope"></div>
+      <div class="sv-f"><span>&nbsp;</span><label class="sv-check"><input type="checkbox" id="f-only"><span data-i18n="only_filled"></span><button class="sv-i" type="button" data-tip="only_filled">i</button></label></div>
+      <div class="sv-f"><span>&nbsp;</span><button class="sv-btn" id="f-reset" type="button"><span data-i18n="btn_reset"></span></button></div>
     </nav>
     <nav class="sv-nav" id="sv-nav" aria-label="Seções">
       <a href="#indicadores" data-i18n="nav_visao"></a><a href="#excelencia" data-i18n="nav_perguntas"></a><a href="#aprendizagem" data-i18n="nav_aprend"></a><a href="#diagnostico" data-i18n="nav_diag"></a><a href="#turmas" data-i18n="nav_turmas"></a><a href="#comparativo" data-i18n="nav_comp"></a><a href="#participacao" data-i18n="nav_part"></a><a href="#leitura" data-i18n="nav_exec"></a><a href="#dicionario" data-i18n="nav_dic"></a>
     </nav>
   </div>
 
-  <section class="sv-section" id="indicadores">
+  <div id="view-painel">
+  <p class="sv-hint" data-i18n="click_hint"></p>
+  <section class="sv-section" id="indicadores" style="margin-top:12px">
     <div class="sv-sec-head">
       <div><h2 class="sv-h2" data-i18n="s_visao"></h2><p class="sv-h2-note" data-i18n="s_visao_n"></p></div>
-      <button class="sv-btn sv-png" data-export="kpis" data-name="visao-geral" type="button"></button>
+      <div class="sv-exp" data-export="kpis" data-name="visao-geral"></div>
     </div>
-    <div class="sv-kpis" id="kpis">
-      <div class="sv-card sv-kpi">
+    <div class="sv-kpis" id="kpis" data-source="relatorios">
+      <div class="sv-card sv-kpi sv-clickable" data-drill="kpi-idx">
         <div class="sv-kpi-label"><span data-i18n="k_indice"></span><button class="sv-i" type="button" data-tip="indice">i</button></div>
-        <div class="sv-kpi-val"><span id="k-indice" class="sv-k" data-field="indice">—</span><small>/ 5</small></div>
-        <div class="sv-pips" id="k-pips" data-source="escopos"></div>
+        <div class="sv-kpi-val"><span id="k-indice">—</span><small>/ 5</small></div>
+        <div class="sv-pips" id="k-pips"></div>
         <div class="sv-delta" id="d-indice"></div>
         <div class="sv-kpi-note" data-i18n="k_indice_n"></div>
       </div>
-      <div class="sv-card sv-kpi">
+      <div class="sv-card sv-kpi sv-clickable" data-drill="kpi-idx">
         <div class="sv-kpi-label"><span data-i18n="k_otimo"></span><button class="sv-i" type="button" data-tip="otimo">i</button></div>
-        <div class="sv-kpi-val"><span id="k-otimo" class="sv-k" data-field="pct_otimo">—</span><small>%</small></div>
-        <div class="sv-stack" id="k-dist" data-source="escopos"></div>
+        <div class="sv-kpi-val"><span id="k-otimo">—</span><small>%</small></div>
+        <div class="sv-stack" id="k-dist"></div>
         <div class="sv-delta" id="d-otimo"></div>
         <div class="sv-kpi-note" id="k-atebom-line"></div>
       </div>
-      <div class="sv-card sv-kpi">
+      <div class="sv-card sv-kpi sv-clickable" data-drill="kpi-max">
         <div class="sv-kpi-label"><span data-i18n="k_max"></span><button class="sv-i" type="button" data-tip="max">i</button></div>
-        <div class="sv-kpi-val"><span id="k-max" class="sv-k" data-field="pct_nota_maxima">—</span><small>%</small></div>
-        <div class="sv-pips" id="k-max-bar" data-source="escopos" style="grid-template-columns: 1fr"></div>
+        <div class="sv-kpi-val"><span id="k-max">—</span><small>%</small></div>
+        <div class="sv-pips" id="k-max-bar" style="grid-template-columns: 1fr"></div>
         <div class="sv-delta" id="d-max"></div>
         <div class="sv-kpi-note" data-i18n="k_max_n"></div>
       </div>
-      <div class="sv-card sv-kpi">
+      <div class="sv-card sv-kpi sv-clickable" data-drill="kpi-all">
         <div class="sv-kpi-label"><span data-i18n="k_taxa"></span><button class="sv-i" type="button" data-tip="taxa">i</button></div>
         <div class="sv-ring-row">
-          <div class="sv-kpi-val"><span id="k-taxa" class="sv-k" data-field="taxa_resposta">—</span><small>%</small></div>
-          <span data-source="escopos" style="display:inline-flex"><svg id="k-ring" width="54" height="54" viewBox="0 0 54 54"></svg></span>
+          <div class="sv-kpi-val"><span id="k-taxa">—</span><small>%</small></div>
+          <svg id="k-ring" width="54" height="54" viewBox="0 0 54 54"></svg>
         </div>
         <div class="sv-delta" id="d-taxa"></div>
         <div class="sv-kpi-note" id="k-taxa-line"></div>
       </div>
-      <div class="sv-card sv-kpi">
+      <div class="sv-card sv-kpi sv-clickable" data-drill="kpi-know">
         <div class="sv-kpi-label"><span data-i18n="k_ganho"></span><button class="sv-i" type="button" data-tip="ganho">i</button></div>
-        <div class="sv-kpi-val"><span id="k-ganho" class="sv-k" data-field="ganho">—</span></div>
+        <div class="sv-kpi-val"><span id="k-ganho">—</span></div>
         <div class="sv-delta" id="k-ganho-d"></div>
         <div class="sv-kpi-note" id="k-ganho-n"></div>
       </div>
@@ -348,19 +406,31 @@
           <div><h3 class="sv-card-title"><span data-i18n="c_itens"></span><button class="sv-i" type="button" data-tip="otimo">i</button></h3><p class="sv-card-note" id="itens-note"></p></div>
           <div class="sv-tools">
             <div class="sv-seg" role="group"><button type="button" data-ordem="form"><span data-i18n="o_form"></span></button><button type="button" data-ordem="rank"><span data-i18n="o_rank"></span></button><button type="button" data-ordem="pol"><span data-i18n="o_pol"></span></button></div>
-            <button class="sv-btn sv-png" data-export="card-itens" data-name="perguntas" type="button"></button>
+            <div class="sv-exp" data-export="card-itens" data-name="perguntas"></div>
           </div>
         </div>
         <div class="sv-legend" id="lg-itens"></div>
-        <div class="sv-chart dash-skeleton" id="chart-itens" data-source="itens" style="min-height: 440px"></div>
+        <div class="sv-chart dash-skeleton" id="chart-itens" data-source="relatorios" style="min-height: 440px"></div>
       </div>
       <div class="sv-card" id="card-dims">
         <div class="sv-card-head">
           <div><h3 class="sv-card-title" data-i18n="c_dims"></h3><p class="sv-card-note" data-i18n="c_dims_n"></p></div>
-          <button class="sv-btn sv-png" data-export="card-dims" data-name="dimensoes" type="button"></button>
+          <div class="sv-exp" data-export="card-dims" data-name="dimensoes"></div>
         </div>
-        <div class="sv-dims dash-skeleton" id="dims" data-source="escopos" style="min-height: 300px"></div>
+        <div class="sv-dims dash-skeleton" id="dims" data-source="relatorios" style="min-height: 300px"></div>
       </div>
+    </div>
+    <div class="sv-card" id="card-radar" style="margin-top:12px">
+      <div class="sv-card-head">
+        <div><h3 class="sv-card-title"><span data-i18n="c_radar"></span><button class="sv-i" type="button" data-tip="radar">i</button></h3><p class="sv-card-note" data-i18n="c_radar_n"></p></div>
+        <div class="sv-tools">
+          <div class="sv-seg" role="group"><button type="button" data-rmetric="media"><span data-i18n="m_media"></span></button><button type="button" data-rmetric="otimo"><span data-i18n="m_otimo"></span></button></div>
+          <div class="sv-exp" data-export="card-radar" data-name="radar" data-csv="radar"></div>
+        </div>
+      </div>
+      <div class="sv-legend" id="lg-radar"></div>
+      <div class="sv-chart dash-skeleton" id="chart-radar" data-source="relatorios" style="min-height: 420px"></div>
+      <details class="sv-how"><summary data-i18n="how"></summary><p data-i18n="how_radar"></p></details>
     </div>
   </section>
 
@@ -369,18 +439,18 @@
     <div class="sv-card" id="card-conhecimento">
       <div class="sv-card-head">
         <div><h3 class="sv-card-title"><span data-i18n="c_conh"></span><button class="sv-i" type="button" data-tip="ganho">i</button></h3><p class="sv-card-note" data-i18n="c_conh_n"></p></div>
-        <button class="sv-btn sv-png" data-export="card-conhecimento" data-name="conhecimento" type="button"></button>
+        <div class="sv-exp" data-export="card-conhecimento" data-name="conhecimento" data-csv="conh"></div>
       </div>
       <div class="sv-know" style="min-height: 360px">
-        <div class="sv-know-mat sv-chart dash-skeleton" id="chart-matriz-conh" data-source="conhecimento"></div>
+        <div class="sv-know-mat sv-chart dash-skeleton" id="chart-matriz-conh" data-source="relatorios"></div>
         <div class="sv-know-side" id="know-side">
-          <div><div class="sv-mini-lbl" data-i18n="kn_mean"></div><div class="sv-big"><span id="kn-antes" class="sv-k" data-field="conhec_antes">—</span><span class="sv-arrow">→</span><span id="kn-apos" class="sv-k sv-good" data-field="conhec_apos">—</span></div></div>
+          <div><div class="sv-mini-lbl" data-i18n="kn_mean"></div><div class="sv-big"><span id="kn-antes">—</span><span class="sv-arrow">→</span><span id="kn-apos" class="sv-good">—</span></div></div>
           <div class="sv-tri">
-            <div style="border-color: var(--sv-accent)"><b id="kn-ev" class="sv-k" data-field="pct_evoluiu">—</b><span data-i18n="kn_ev"></span></div>
-            <div><b id="kn-ig" class="sv-k" data-field="pct_igual">—</b><span data-i18n="kn_ig"></span></div>
-            <div style="border-color: var(--color-bad)"><b id="kn-rg" class="sv-k" data-field="pct_regrediu">—</b><span data-i18n="kn_rg"></span></div>
+            <div style="border-color: var(--sv-accent)"><b id="kn-ev">—</b><span data-i18n="kn_ev"></span></div>
+            <div><b id="kn-ig">—</b><span data-i18n="kn_ig"></span></div>
+            <div style="border-color: var(--color-bad)"><b id="kn-rg">—</b><span data-i18n="kn_rg"></span></div>
           </div>
-          <div><div class="sv-mini-lbl" data-i18n="kn_dist"></div><div id="kn-dist" class="sv-chart" data-source="conhecimento"></div></div>
+          <div><div class="sv-mini-lbl" data-i18n="kn_dist"></div><div id="kn-dist" class="sv-chart"></div></div>
         </div>
       </div>
     </div>
@@ -392,16 +462,18 @@
       <div class="sv-card" id="card-prioridade">
         <div class="sv-card-head">
           <div><h3 class="sv-card-title"><span data-i18n="c_prio"></span><button class="sv-i" type="button" data-tip="influencia">i</button></h3><p class="sv-card-note" data-i18n="c_prio_n"></p></div>
-          <button class="sv-btn sv-png" data-export="card-prioridade" data-name="prioridades" type="button"></button>
+          <div class="sv-exp" data-export="card-prioridade" data-name="prioridades" data-csv="prio"></div>
         </div>
-        <div class="sv-chart dash-skeleton" id="chart-prioridade" data-source="itens" style="min-height: 360px"></div>
+        <div class="sv-chart dash-skeleton" id="chart-prioridade" data-source="relatorios" style="min-height: 360px"></div>
+        <details class="sv-how"><summary data-i18n="how"></summary><p data-i18n="how_prio"></p><p><b data-i18n-m="correlacao_r"></b></p></details>
       </div>
       <div class="sv-card" id="card-funil">
         <div class="sv-card-head">
           <div><h3 class="sv-card-title"><span data-i18n="c_funil"></span><button class="sv-i" type="button" data-tip="funil">i</button></h3><p class="sv-card-note" data-i18n="c_funil_n"></p></div>
-          <button class="sv-btn sv-png" data-export="card-funil" data-name="funil-cursos" type="button"></button>
+          <div class="sv-exp" data-export="card-funil" data-name="funil-cursos" data-csv="funil"></div>
         </div>
-        <div class="sv-chart dash-skeleton" id="chart-funil" data-source="escopos" style="min-height: 360px"></div>
+        <div class="sv-chart dash-skeleton" id="chart-funil" data-source="relatorios" style="min-height: 360px"></div>
+        <details class="sv-how"><summary data-i18n="how"></summary><p id="how-funil"></p></details>
       </div>
     </div>
   </section>
@@ -411,9 +483,10 @@
     <div class="sv-card" id="card-turmas">
       <div class="sv-card-head">
         <div><h3 class="sv-card-title"><span id="turmas-title"></span><button class="sv-i" type="button" data-tip="amplitude">i</button></h3><p class="sv-card-note" id="turmas-note"></p></div>
-        <button class="sv-btn sv-png" data-export="card-turmas" data-name="turmas" type="button"></button>
+        <div class="sv-exp" data-export="card-turmas" data-name="turmas" data-csv="turmas"></div>
       </div>
-      <div class="sv-chart dash-skeleton" id="chart-turmas" data-source="escopos" style="min-height: 300px"></div>
+      <div class="sv-chart dash-skeleton" id="chart-turmas" data-source="relatorios" style="min-height: 300px"></div>
+      <details class="sv-how"><summary data-i18n="how"></summary><p data-i18n="how_turmas"></p></details>
     </div>
   </section>
 
@@ -424,25 +497,23 @@
         <div><h3 class="sv-card-title" data-i18n="c_heat"></h3><p class="sv-card-note" id="heat-note"></p></div>
         <div class="sv-tools">
           <div class="sv-seg" role="group"><button type="button" data-metrica="media"><span data-i18n="m_media"></span></button><button type="button" data-metrica="otimo"><span data-i18n="m_otimo"></span></button></div>
-          <button class="sv-btn sv-csv" data-csv="heat-wrap" data-name="mapa-de-calor" type="button"></button>
-          <button class="sv-btn sv-png" data-export="card-heat" data-name="mapa-de-calor" type="button"></button>
+          <div class="sv-exp" data-export="card-heat" data-name="mapa-de-calor" data-csv="heat"></div>
         </div>
       </div>
-      <div class="sv-scroll dash-skeleton" id="heat-wrap" data-source="itens escopos" style="min-height: 240px"></div>
+      <div class="sv-scroll dash-skeleton" id="heat-wrap" data-source="relatorios" style="min-height: 240px"></div>
       <div class="sv-heat-scale" id="heat-scale"></div>
     </div>
 
-    <div class="sv-card" id="card-ranking" style="margin-top: var(--cds-gap-md)">
+    <div class="sv-card" id="card-ranking" style="margin-top: 12px">
       <div class="sv-card-head">
         <div><h3 class="sv-card-title" id="rank-title"></h3><p class="sv-card-note" data-i18n="c_rank_n"></p></div>
         <div class="sv-tools">
           <input class="sv-search" id="rank-search" type="search">
-          <button class="sv-btn sv-csv" data-csv="rank-wrap" data-name="ranking" type="button"></button>
-          <button class="sv-btn sv-png" data-export="card-ranking" data-name="ranking" type="button"></button>
+          <div class="sv-exp" data-export="card-ranking" data-name="ranking" data-csv="rank"></div>
         </div>
       </div>
-      <div class="sv-scroll dash-skeleton" id="rank-wrap" style="max-height: 620px; min-height: 240px">
-        <table class="sv-tbl" id="tabela-ranking" data-source="escopos" data-row-key="escopo">
+      <div class="sv-scroll dash-skeleton" id="rank-wrap" data-source="relatorios" style="max-height: 620px; min-height: 240px">
+        <table class="sv-tbl" id="tabela-ranking">
           <thead><tr id="rank-head"></tr></thead>
           <tbody id="rank-body"></tbody>
         </table>
@@ -457,17 +528,17 @@
       <div class="sv-card" id="card-participacao">
         <div class="sv-card-head">
           <div><h3 class="sv-card-title"><span id="part-title"></span><button class="sv-i" type="button" data-tip="taxa">i</button></h3><p class="sv-card-note" data-i18n="c_part_n"></p></div>
-          <div class="sv-tools"><button class="sv-btn sv-csv" data-csv="part-list" data-name="participacao" type="button"></button><button class="sv-btn sv-png" data-export="card-participacao" data-name="participacao" type="button"></button></div>
+          <div class="sv-exp" data-export="card-participacao" data-name="participacao" data-csv="part"></div>
         </div>
         <div class="sv-legend" id="lg-part"></div>
-        <div class="sv-scroll dash-skeleton" id="part-list" data-source="escopos" style="max-height: 520px; min-height: 240px"></div>
+        <div class="sv-scroll dash-skeleton" id="part-list" data-source="relatorios" style="max-height: 520px; min-height: 240px"></div>
       </div>
       <div class="sv-card" id="card-qualidade">
         <div class="sv-card-head">
           <div><h3 class="sv-card-title" data-i18n="c_qual"></h3><p class="sv-card-note" data-i18n="c_qual_n"></p></div>
-          <button class="sv-btn sv-png" data-export="card-qualidade" data-name="qualidade-base" type="button"></button>
+          <div class="sv-exp" data-export="card-qualidade" data-name="qualidade-base"></div>
         </div>
-        <div class="sv-qual dash-skeleton" id="qual-cards" data-source="qualidade" style="min-height: 240px"></div>
+        <div class="sv-qual dash-skeleton" id="qual-cards" data-source="relatorios" style="min-height: 240px"></div>
       </div>
     </div>
   </section>
@@ -475,9 +546,9 @@
   <section class="sv-section" id="leitura">
     <div class="sv-sec-head">
       <div><h2 class="sv-h2" data-i18n="s_exec"></h2><p class="sv-h2-note" data-i18n="s_exec_n"></p></div>
-      <div class="sv-tools"><button class="sv-btn" id="btn-copy" type="button"><span data-i18n="btn_copy"></span></button><button class="sv-btn sv-png" data-export="exec" data-name="leitura-executiva" type="button"></button></div>
+      <div class="sv-tools"><button class="sv-btn" id="btn-copy" type="button"><span data-i18n="btn_copy"></span></button><div class="sv-exp" data-export="exec" data-name="leitura-executiva"></div></div>
     </div>
-    <div class="sv-exec" id="exec">
+    <div class="sv-exec" id="exec" data-source="relatorios">
       <div class="sv-card"><div class="sv-card-head"><h3><i style="background: var(--sv-accent)"></i><span data-i18n="ex_fortes"></span></h3></div><ul id="ex-fortes" class="dash-skeleton"></ul></div>
       <div class="sv-card"><div class="sv-card-head"><h3><i style="background: var(--color-bad)"></i><span data-i18n="ex_atencao"></span></h3></div><ul id="ex-atencao" class="dash-skeleton"></ul></div>
       <div class="sv-card"><div class="sv-card-head"><h3><i style="background: var(--color-fg-muted)"></i><span data-i18n="ex_acoes"></span></h3></div><ul id="ex-acoes" class="dash-skeleton"></ul></div>
@@ -488,21 +559,43 @@
     <div class="sv-sec-head"><div><h2 class="sv-h2" data-i18n="s_dic"></h2><p class="sv-h2-note" data-i18n="s_dic_n"></p></div></div>
     <div class="sv-grid">
       <div class="sv-card" id="card-metricas">
-        <div class="sv-card-head"><div><h3 class="sv-card-title" data-i18n="c_metricas"></h3><p class="sv-card-note" data-i18n="scale_line"></p></div><button class="sv-btn sv-png" data-export="card-metricas" data-name="metricas" type="button"></button></div>
+        <div class="sv-card-head"><div><h3 class="sv-card-title" data-i18n="c_metricas"></h3><p class="sv-card-note" data-i18n="scale_line"></p></div><div class="sv-exp" data-export="card-metricas" data-name="metricas"></div></div>
         <dl class="sv-dl" id="dl-metricas"></dl>
       </div>
       <div class="sv-card" id="card-perguntas">
-        <div class="sv-card-head"><div><h3 class="sv-card-title" data-i18n="c_perguntas"></h3></div><button class="sv-btn sv-png" data-export="card-perguntas" data-name="perguntas-ficha" type="button"></button></div>
+        <div class="sv-card-head"><div><h3 class="sv-card-title" data-i18n="c_perguntas"></h3></div><div class="sv-exp" data-export="card-perguntas" data-name="perguntas-ficha"></div></div>
         <dl class="sv-dl" id="dl-perguntas"></dl>
       </div>
     </div>
-    <div class="sv-card" id="card-limites" style="margin-top: var(--cds-gap-md)">
+    <div class="sv-card" id="card-limites" style="margin-top: 12px">
       <div class="sv-card-head"><div><h3 class="sv-card-title" data-i18n="c_limites"></h3></div></div>
       <ul class="sv-lim" id="lim-list"></ul>
     </div>
   </section>
-
   <footer class="sv-foot" id="metodologia"><p id="src-line" data-i18n="src_line"></p></footer>
+  </div>
+
+  <div id="view-dados" hidden>
+    <div class="sv-dhead">
+      <div><h2 data-i18n="d_title"></h2><div class="sv-dsel" id="d-sel"></div><div class="sv-dmeta" id="d-meta"></div></div>
+      <div class="sv-tools">
+        <button class="sv-btn" id="d-back" type="button"><span data-i18n="d_back"></span></button>
+        <button class="sv-btn" id="d-filter" type="button" hidden></button>
+        <input class="sv-search" id="d-search" type="search">
+        <div class="sv-exp" data-export="card-dados" data-name="fichas" data-csv="dados"></div>
+      </div>
+    </div>
+    <div class="sv-card" id="card-dados">
+      <div class="sv-mini-lbl" data-i18n="d_summary"></div>
+      <div class="sv-dsum" id="d-sum"></div>
+      <div class="sv-scroll" id="d-wrap" data-source="relatorios" style="max-height: 70vh">
+        <table class="sv-tbl sv-dtbl" id="d-table"><thead><tr id="d-head"></tr></thead><tbody id="d-body"></tbody></table>
+      </div>
+      <div class="sv-tblnote" id="d-foot"></div>
+      <div class="sv-empty" id="d-empty" data-i18n="d_empty"></div>
+    </div>
+  </div>
+
   <div class="sv-pop" id="sv-pop" role="tooltip"></div>
   <div class="sv-toast" id="sv-toast" role="status"></div>
 </div>

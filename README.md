@@ -10,34 +10,27 @@ O dashboard é uma página única (`index.html`), com os dados embutidos. Não p
 
 ## O que tem no painel
 
-- **Português e inglês**, com escolha separada para os nomes dos cursos (originais ou em inglês).
-- **Filtros** por área, curso e turma, além de uma base mínima de fichas para as comparações. O recorte fica salvo no endereço da página, então um link copiado abre no mesmo filtro.
-- **Navegação por seções** fixa no topo e **explicações (ⓘ)** em cada indicador e coluna, além de um dicionário com as métricas, as perguntas da ficha e o que os dados não permitem afirmar.
-- **Cores configuráveis** (botão Cores): paleta das notas, cor de destaque e o mapa de calor em **faixas fixas** (crítico, atenção, bom, excelente, com limites editáveis) ou por **distância da referência**. As escolhas ficam salvas no navegador.
-- **Visão geral:** índice de satisfação, % de respostas "Ótimo", fichas 100% Ótimo (efeito teto), taxa de resposta e ganho de conhecimento.
-- **Distância até a excelência:** as 10 perguntas, em ordem da ficha, ranking ou polarização (desvio-padrão), mais o resumo por dimensão.
-- **Aprendizagem percebida:** matriz 5×5 do conhecimento antes × após o curso.
-- **Diagnóstico:** matriz de prioridades (excelência × influência) e funil de controle dos cursos (limites de 95% e 99,8%).
-- **Consistência entre turmas:** amplitude entre turmas de cada curso e, com um curso selecionado, o funil das turmas em torno da média do curso.
-- **Comparativo:** mapa de calor por pergunta (média ou % Ótimo) e ranking ordenável com busca.
-- **Coleta e participação:** situação das fichas e auditoria da base (respostas em branco, fichas parciais, faltosos com respostas, cursos sem nome ou sem fichas, turmas pequenas, efeito teto).
-- **Leitura executiva:** pontos fortes, de atenção e próximos passos, gerados a partir dos números do recorte, com botão para copiar o texto.
-- **Exportações:** PNG em alta resolução de cada gráfico, tabela e bloco; CSV das tabelas e das fichas do recorte; Imprimir / PDF.
-- **Atualizar base no navegador:** carregue a planilha exportada do banco (.xlsx, aba SQL Results) ou o CSV no mesmo formato. A conversão é feita localmente e a base fica salva no navegador até você restaurar a original.
+- **Duas abas:** *Painel* (gráficos e tabelas) e *Dados* (as fichas de origem). Clique em qualquer barra, célula, ponto, linha ou card para abrir na aba Dados exatamente as fichas que formam aquele número, com resumo por curso, busca, ordenação, coluna destacada e exportação.
+- **Filtros com seleção múltipla** de áreas, cursos e turmas (com busca, *Selecionar todos*, *Limpar* e *Inverter*), opção **Só com fichas preenchidas**, **Agrupar por** (área, curso, turma) e **Voltar** (desfaz o último filtro). O recorte fica salvo no endereço da página.
+- **Português e inglês**, com escolha separada para os nomes dos cursos.
+- **Explicações (ⓘ)** em cada indicador e coluna, blocos **Como ler** nos gráficos mais técnicos (radar, matriz de prioridades com a correlação de Pearson, funil de controle, turmas) e um dicionário com métricas, perguntas da ficha e limitações dos dados.
+- **Cores configuráveis:** paleta das notas, destaque e mapa de calor em faixas fixas (limites editáveis) ou por distância da referência.
+- **Visão geral**, **distância até a excelência** (ordem da ficha, ranking ou polarização), **dimensões**, **radar (teia de aranha)** por pergunta (com 2 a 6 cursos selecionados, uma linha por curso), **aprendizagem percebida**, **matriz de prioridades**, **funil de controle**, **consistência entre turmas**, **mapa de calor**, **ranking**, **participação**, **qualidade da base** e **leitura executiva**.
+- **Exportações:** cada bloco exporta em PNG (alta resolução), PDF e, quando é tabela, CSV. Há ainda o **PDF completo** do painel, o CSV das fichas do recorte e Imprimir.
+- **Atualizar base no navegador:** carregue a planilha exportada do banco (.xlsx, aba SQL Results) ou o CSV no mesmo formato.
 
 ## Estrutura
 
 ```
 index.html                 página final (gerada por scripts/build.py)
 painel_offline.html        mesma página com as bibliotecas embutidas, para usar sem internet
-vendor/                    d3 7.8.5 e SheetJS 0.18.5, embutidos na versão offline
+vendor/                    d3 7.8.5, SheetJS 0.18.5 e jsPDF 2.5.1, embutidos na versão offline
 data/relatorios.csv        uma linha por ficha: curso, turma, situação e notas 1–5 das 12 perguntas
 data/cursos.csv            código, área, nome original e nome em inglês de cada curso
 data/traducoes_cursos.csv  nomes dos cursos em inglês (edite aqui para corrigir uma tradução)
 src/markup.html            estrutura e estilos
-src/calcs.js               cálculos por recorte (geral, área, curso, turma)
 src/i18n.js                textos em português e inglês, explicações e dicionário
-src/app.js                 gráficos, filtros, cores, exportações
+src/app.js                 cálculos no navegador, gráficos, filtros, aba Dados, cores, exportações
 src/shim.js, upload.js     runtime da versão independente e leitura da planilha no navegador
 src/theme.css              cores e tipografia (tema claro e escuro)
 scripts/prep.py            converte a planilha exportada do banco em data/*.csv
