@@ -8516,6 +8516,8 @@ window.SV_I18N = (() => {
   const XLSX_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
   const ensureXLSX = () => new Promise((res, rej) => {
     if (window.XLSX) return res();
+    const emb = document.getElementById('lib-xlsx');
+    if (emb) { const s = document.createElement('script'); s.textContent = emb.textContent; document.head.appendChild(s); return window.XLSX ? res() : rej(new Error('leitor de Excel embutido não carregou')); }
     const s = document.createElement('script'); s.src = XLSX_URL; s.onload = () => res(); s.onerror = () => rej(new Error('não foi possível carregar o leitor de Excel (sem internet?). Salve a planilha como CSV e tente de novo.'));
     document.head.appendChild(s);
   });

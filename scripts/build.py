@@ -60,6 +60,18 @@ page = f'''<!doctype html>
 </html>
 '''
 (ROOT / 'index.html').write_text(page, encoding='utf-8')
+
+# Versão offline: um único arquivo com tudo embutido (gráficos e leitor de Excel), para abrir direto do computador
+CDN = '<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>'
+assert CDN in page
+d3js = (ROOT / 'vendor' / 'd3.min.js').read_text(encoding='utf-8')
+xlsxjs = (ROOT / 'vendor' / 'xlsx.full.min.js').read_text(encoding='utf-8')
+assert '</script' not in d3js + xlsxjs
+offline = page.replace(CDN, '<script>\n' + d3js + '\n</script>').replace(
+    '<script type="text/csv" data-dataset="relatorios">',
+    '<script type="text/x-lib" id="lib-xlsx">\n' + xlsxjs + '\n</script>\n<script type="text/csv" data-dataset="relatorios">', 1)
+(ROOT / 'painel_offline.html').write_text(offline, encoding='utf-8')
+print(f'painel_offline.html: {len(offline.encode()) / 1024:.0f} KB')
 print(f'index.html: {len(page.encode()) / 1024:.0f} KB')
 
 # Página para o dashboard publicado no Claude (sem runtime próprio nem leitor de planilha)

@@ -6,6 +6,8 @@ Dashboard interativo das fichas de **avaliação de tipo de reação** dos trein
 
 O dashboard é uma página única (`index.html`), com os dados embutidos. Não precisa de servidor: também abre direto no navegador.
 
+**Versão offline:** `painel_offline.html` traz tudo embutido (dados, biblioteca de gráficos e leitor de Excel). Baixe o arquivo e abra com dois cliques, sem precisar de internet.
+
 ## O que tem no painel
 
 - **Português e inglês**, com escolha separada para os nomes dos cursos (originais ou em inglês).
@@ -27,6 +29,8 @@ O dashboard é uma página única (`index.html`), com os dados embutidos. Não p
 
 ```
 index.html                 página final (gerada por scripts/build.py)
+painel_offline.html        mesma página com as bibliotecas embutidas, para usar sem internet
+vendor/                    d3 7.8.5 e SheetJS 0.18.5, embutidos na versão offline
 data/relatorios.csv        uma linha por ficha: curso, turma, situação e notas 1–5 das 12 perguntas
 data/cursos.csv            código, área, nome original e nome em inglês de cada curso
 data/traducoes_cursos.csv  nomes dos cursos em inglês (edite aqui para corrigir uma tradução)
@@ -49,7 +53,7 @@ Para atualizar o site para todos:
 ```bash
 pip install pandas openpyxl
 python scripts/prep.py "Relatórios de Satisfação Treinamentos.xlsx"
-python scripts/build.py
+python scripts/build.py   # gera index.html e painel_offline.html
 git add -A && git commit -m "Atualiza dados" && git push && git push origin main:gh-pages
 ```
 
