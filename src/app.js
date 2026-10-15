@@ -322,6 +322,19 @@
   document.querySelectorAll('[data-ordem]').forEach((b) => b.addEventListener('click', () => dash.setParams({ ordem: b.dataset.ordem })));
   document.querySelectorAll('[data-metrica]').forEach((b) => b.addEventListener('click', () => dash.setParams({ metrica: b.dataset.metrica })));
   document.querySelectorAll('[data-rmetric]').forEach((b) => b.addEventListener('click', () => dash.setParams({ rmetric: b.dataset.rmetric })));
+  document.querySelectorAll('[data-rscale]').forEach((b) => b.addEventListener('click', () => {
+    const patch = { rscale: b.dataset.rscale };
+    if (b.dataset.rscale === 'custom' && P().rscale !== 'custom' && SCOPE) {
+      const m = (P().rmetric || 'media') === 'media';
+      const cur = radarScale(m ? 'media' : 'otimo', SCOPE.S.items.map((it) => (m ? it.media : it.pct5)).filter((v) => v != null).concat(DB.G.items.map((it) => (m ? it.media : it.pct5)).filter((v) => v != null)), 'auto');
+      Object.assign(patch, m ? { rmin: cur.lo, rmax: cur.hi } : { pmin: cur.lo, pmax: cur.hi });
+    }
+    dash.setParams(patch);
+  }));
+  ['r-min', 'r-max'].forEach((id) => $(id).addEventListener('change', () => {
+    const m = (P().rmetric || 'media') === 'media'; const v = Number($(id).value); if (!Number.isFinite(v)) return;
+    dash.setParams({ [(m ? 'r' : 'p') + (id === 'r-min' ? 'min' : 'max')]: v });
+  }));
   const togglePanel = (btn, panel) => { const open = panel.hidden; panel.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
   $('btn-colors').addEventListener('click', () => togglePanel($('btn-colors'), $('colors-panel')));
   $('cfg-close').addEventListener('click', () => togglePanel($('btn-colors'), $('colors-panel')));
@@ -354,7 +367,7 @@
   }
   document.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => {
     if (b.dataset.view === UI.view) return;
-    if (b.dataset.view === 'dados') { painelScroll = window.scrollY; setView('dados'); drawDados(); }
+    if (b.dataset.view === 'dados') { painelScroll = window.scrollY; setView('dados'); drawDados(); requestAnimationFrame(() => { const st = $('barra').getBoundingClientRect().height; const top = $('view-dados').getBoundingClientRect().top + window.scrollY - st - 8; if (window.scrollY > top) window.scrollTo(0, Math.max(0, top)); }); }
     else { setView('painel'); requestAnimationFrame(() => window.scrollTo(0, painelScroll)); }
   }));
   $('d-back').addEventListener('click', () => { setView('painel'); requestAnimationFrame(() => window.scrollTo(0, painelScroll)); });
@@ -374,11 +387,20 @@
     document.querySelectorAll('[data-ordem]').forEach((b) => b.setAttribute('aria-pressed', String((P().ordem || 'form') === b.dataset.ordem)));
     document.querySelectorAll('[data-metrica]').forEach((b) => b.setAttribute('aria-pressed', String((P().metrica || 'media') === b.dataset.metrica)));
     document.querySelectorAll('[data-rmetric]').forEach((b) => b.setAttribute('aria-pressed', String((P().rmetric || 'media') === b.dataset.rmetric)));
+    const rs = P().rscale || 'full', rm = (P().rmetric || 'media') === 'media';
+    document.querySelectorAll('[data-rscale]').forEach((b) => b.setAttribute('aria-pressed', String(rs === b.dataset.rscale)));
+    $('r-custom').hidden = rs !== 'custom';
+    if (rs === 'custom' && SCOPE) {
+      const sc = radarScale(rm ? 'media' : 'otimo', [1]);
+      [['r-min', sc.lo], ['r-max', sc.hi]].forEach(([id, v]) => { const i = $(id); i.min = rm ? 1 : 0; i.max = rm ? 5 : 100; i.step = rm ? 0.1 : 5; if (document.activeElement !== i) i.value = rm ? String(Math.round(v * 100) / 100) : String(Math.round(v)); });
+    }
   }
 
   // ---------- drill-down to source forms ----------
   let D = null;
+  let DA = null; // vista padrão: todas as fichas do recorte
   let SCOPE = null;
+  const CD = () => D || DA;
   const CSVD = {};
   function openData(spec) {
     if (UI.view === 'painel') painelScroll = window.scrollY;
@@ -397,10 +419,17 @@
     const flt = g.nivel === 'curso' ? { cursos: [g.sigla], turmas: [] } : g.nivel === 'turma' ? { cursos: [g.sigla], turmas: [g.key] } : g.nivel === 'area' ? { areas: [g.area], cursos: [], turmas: [] } : null;
     openData({ label: ex.label || (() => gFull(g)), rows: ex.rows || g.rows, hl: ex.hl || [], filter: flt, filterName: () => gFull(g) });
   };
-  $('d-search').addEventListener('input', () => { if (D) { D.limit = 300; drawDados(); } });
+  $('d-search').addEventListener('input', () => { const d = CD(); if (d) { d.limit = 300; drawDados(); } });
+  $('d-all').addEventListener('click', () => { D = null; $('d-search').value = ''; if (DA) { DA.limit = 300; DA.course = null; } drawDados(); });
+  function syncDA() {
+    if (!SCOPE) return;
+    if (DA && DA.rows === SCOPE.rows) return;
+    DA = { label: () => t('d_all'), rows: SCOPE.rows, hl: [], all: true, sortKey: DA ? DA.sortKey : 'sigla', sortDir: DA ? DA.sortDir : 'asc', course: null, limit: 300 };
+  }
   $('d-filter').addEventListener('click', () => { if (D && D.filter) { setFilter(D.filter); setView('painel'); window.scrollTo(0, 0); } });
   const STX = () => ({ 'Preenchido': t('st_pre'), 'Não preenchido': t('st_nao'), 'Faltoso': t('st_fal') });
   function dadosRows() {
+    const D = CD();
     if (!D) return [];
     const q = $('d-search').value.trim().toLowerCase();
     let rows = D.rows;
@@ -411,12 +440,16 @@
     return rows.slice().sort((a, b) => { const va = val(a), vb = val(b); if (va == null && vb == null) return 0; if (va == null) return 1; if (vb == null) return -1; const o = typeof va === 'number' ? va - vb : String(va).localeCompare(String(vb), LOC(), { numeric: true }); return (o * dir) || a.sigla.localeCompare(b.sigla) || a.turma - b.turma || a.rel - b.rel; });
   }
   function drawDados() {
-    const has = !!D;
-    $('dados-n').hidden = !has; if (has) $('dados-n').textContent = fi(D.rows.length);
+    syncDA();
+    const D = CD();
+    const has = !!(D && D.rows.length);
+    $('d-all').hidden = !(D && !D.all);
+    $('dados-n').hidden = !D; if (D) $('dados-n').textContent = fi(D.rows.length);
     $('d-empty').hidden = has; $('d-wrap').hidden = !has; $('card-dados').querySelector('.sv-mini-lbl').hidden = !has;
-    if (!has) { $('d-sel').textContent = ''; $('d-meta').textContent = ''; $('d-sum').replaceChildren(); $('d-foot').textContent = ''; $('d-filter').hidden = true; CSVD.dados = null; return; }
+    if (!has) { $('d-sel').textContent = D ? D.label() : ''; $('d-meta').textContent = ''; $('d-sum').replaceChildren(); $('d-foot').textContent = ''; $('d-filter').hidden = true; CSVD.dados = null; return; }
     $('d-sel').textContent = D.label();
     const meta = [t('d_count', { n: fi(D.rows.length) }), t('d_scope', { v: scopeLabel() })];
+    if (D.all) meta.push(t('d_tip'));
     if (D.hl && D.hl.length) meta.push(t('d_hl', { v: D.hl.map((k) => (QK.includes(k) ? qLabel(k) : k === 'ka' ? qLabel('conhec_antes') : k === 'kd' ? qLabel('conhec_apos') : k === 'idx' ? t('col_idx_ficha') : k)).join(', ') }));
     $('d-meta').textContent = meta.join(' · ');
     const fb = $('d-filter'); fb.hidden = !D.filter; if (D.filter) fb.textContent = t('d_filter', { v: D.filterName ? D.filterName() : '' });
@@ -629,8 +662,27 @@
   }
 
   // ---------- Radar ----------
+  // Escala do radar: completa (1–5 / 0–100%), zoom automático ou personalizada (parâmetros rmin/rmax e pmin/pmax).
+  function radarScale(metr, all, force) {
+    const p = P(), mode = force || p.rscale || 'full', m = metr === 'media';
+    const B0 = m ? 1 : 0, B1 = m ? 5 : 100;
+    if (mode === 'auto') {
+      const mn = d3.min(all), mx = d3.max(all);
+      const lo = m ? Math.max(1, Math.floor((mn - 0.15) * 4) / 4) : Math.max(0, Math.floor((mn - 5) / 10) * 10);
+      const hi = m ? Math.min(5, Math.max(lo + 0.5, Math.ceil((mx + 0.05) * 4) / 4)) : Math.min(100, Math.max(lo + 10, Math.ceil((mx + 2) / 10) * 10));
+      return { lo, hi };
+    }
+    if (mode === 'custom') {
+      let lo = Number(m ? p.rmin : p.pmin), hi = Number(m ? p.rmax : p.pmax);
+      if (!Number.isFinite(lo)) lo = m ? 3 : 40; if (!Number.isFinite(hi)) hi = B1;
+      lo = Math.max(B0, Math.min(B1, lo)); hi = Math.max(B0, Math.min(B1, hi));
+      if (hi - lo < (m ? 0.1 : 1)) hi = Math.min(B1, lo + (m ? 0.5 : 10)), lo = Math.min(lo, hi - (m ? 0.5 : 10));
+      return { lo, hi };
+    }
+    return { lo: B0, hi: B1 };
+  }
   function drawRadar(S, G, filt, rows) {
-    const box = $('chart-radar'); box.classList.remove('dash-skeleton'); clearChart(box);
+    const box = $('chart-radar'); box.classList.remove('dash-skeleton'); box.style.minHeight = '0'; clearChart(box);
     const tip = tipFor(box);
     const metr = P().rmetric || 'media';
     const f = F();
@@ -646,30 +698,36 @@
     lg.replaceChildren(...series.map((s) => { const sp = el('span'); const sw = el('i'); sw.style.background = s.color; sp.append(sw, s.name); return sp; }));
     if (showRef) { const sp = el('span'); const sw = el('i'); sw.style.background = 'transparent'; sw.style.border = '2px dashed var(--color-fg-muted)'; sp.append(sw, t('radar_ref')); lg.append(sp); }
     CSVD.radar = { header: [t('c_perguntas'), ...series.map((s) => s.name), ...(showRef ? [t('radar_ref')] : [])], rows: QK.map((k, i) => [qLabel(k), ...series.map((s) => val(s.a.items[i])), ...(showRef ? [val(G.items[i])] : [])]) };
-    if (!series.length || !all.length) { empty(box, t('no_resp')); return; }
+    if (!series.length || !all.length) { $('radar-note').textContent = ''; empty(box, t('no_resp')); return; }
     const W = box.clientWidth; if (!W) return;
-    const H = Math.min(540, Math.max(360, W * 0.5));
+    const sc = radarScale(metr, all);
+    const lo = sc.lo, hi = sc.hi, base = metr === 'media' ? 1 : 0;
+    const narrow = W < 560;
+    const R = Math.max(80, Math.min(narrow ? W / 2 - 58 : 175, W / 2 - (narrow ? 58 : 130)));
+    const H = Math.round(R * 2 + 56);
     const svg = d3.select(box).insert('svg', '.sv-tip').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
-    const cx = W / 2, cy = H / 2 + 4, R = Math.max(80, Math.min(W / 2 - (W < 560 ? 60 : 150), H / 2 - 40));
-    const lo = metr === 'media' ? Math.max(1, Math.floor((d3.min(all) - 0.1) * 10) / 10) : Math.max(0, Math.floor((d3.min(all) - 5) / 5) * 5);
-    const hi = metr === 'media' ? 5 : 100;
-    const r = d3.scaleLinear([lo, hi], [R * 0.12, R]);
+    const cx = W / 2, cy = R + 26;
+    const r = d3.scaleLinear([lo, hi], [0, R]).clamp(true);
     const ang = (i) => (i / QK.length) * 2 * Math.PI - Math.PI / 2;
     const pt = (i, v) => [cx + Math.cos(ang(i)) * r(v), cy + Math.sin(ang(i)) * r(v)];
-    d3.range(5).map((k) => lo + ((hi - lo) * (k + 1)) / 5).forEach((tv) => {
+    const fmtS = (v) => (metr === 'media' ? f2(v) : loc(v, 0) + '%');
+    const ticks = d3.ticks(lo, hi, metr === 'media' && hi - lo <= 1 ? 5 : 4).filter((v) => v > lo + 1e-9);
+    ticks.forEach((tv) => {
       svg.append('path').attr('d', d3.line()(QK.map((_, i) => pt(i, tv)).concat([pt(0, tv)]))).style('fill', 'none').style('stroke', 'var(--cds-chart-grid)');
       const la = -Math.PI / 2 + Math.PI / QK.length;
-      svg.append('text').attr('x', cx + Math.cos(la) * r(tv) + 3).attr('y', cy + Math.sin(la) * r(tv) - 3).style('font-size', '10px').style('fill', 'var(--color-fg-muted)').text(metr === 'media' ? f2(tv) : loc(tv, 0) + '%');
+      svg.append('text').attr('x', cx + Math.cos(la) * r(tv) + 3).attr('y', cy + Math.sin(la) * r(tv) - 3).style('font-size', '10px').style('fill', 'var(--color-fg-muted)').text(fmtS(tv));
     });
     QK.forEach((k, i) => {
       const [x2, y2] = pt(i, hi);
       svg.append('line').attr('x1', cx).attr('y1', cy).attr('x2', x2).attr('y2', y2).style('stroke', 'var(--cds-chart-grid)');
-      const lx = cx + Math.cos(ang(i)) * (R + 14), ly = cy + Math.sin(ang(i)) * (R + 14);
+      const lx = cx + Math.cos(ang(i)) * (R + 12), ly = cy + Math.sin(ang(i)) * (R + 12);
       const anchor = Math.abs(Math.cos(ang(i))) < 0.2 ? 'middle' : Math.cos(ang(i)) > 0 ? 'start' : 'end';
-      svg.append('text').attr('x', lx).attr('y', ly + 4).attr('text-anchor', anchor).style('font-size', 'var(--cds-font-size-caption)').style('fill', 'var(--color-fg)').style('cursor', 'pointer').text(W < 560 ? qShort(k) : qLabel(k))
+      const dy = Math.sin(ang(i)) < -0.9 ? -2 : Math.sin(ang(i)) > 0.9 ? 10 : 4;
+      svg.append('text').attr('x', lx).attr('y', ly + dy).attr('text-anchor', anchor).style('font-size', 'var(--cds-font-size-caption)').style('fill', 'var(--color-fg)').style('cursor', 'pointer').text(narrow ? qShort(k) : qLabel(k))
         .on('click', () => openData({ label: () => t('sel_q', { q: qLabel(k) }), rows: qRows(rows, i), hl: [k] }));
     });
-    svg.append('text').attr('x', 0).attr('y', H - 4).style('font-size', '11px').style('fill', 'var(--color-fg-muted)').text(t('scale_from', { a: metr === 'media' ? f2(lo) : loc(lo, 0) + '%', b: metr === 'media' ? f2(5) : '100%' }));
+    const rn = $('radar-note'); rn.replaceChildren(t('scale_from', { a: fmtS(lo), b: fmtS(hi) }));
+    if (lo > base) { const w = el('b', '', ' · ' + t('scale_zoom', { a: fmtS(lo), z: fmtS(base) })); w.style.color = 'var(--color-warn)'; rn.append(w); }
     if (showRef) { const pts = G.items.map((it, i) => pt(i, val(it) ?? lo)); svg.append('path').attr('d', d3.line()(pts.concat([pts[0]]))).style('fill', 'none').style('stroke', 'var(--color-fg-muted)').style('stroke-width', 1.5).attr('stroke-dasharray', '5 4'); }
     series.forEach((s) => {
       const pts = s.a.items.map((it, i) => pt(i, val(it) ?? lo));

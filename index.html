@@ -43,8 +43,8 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
 <body>
 <div id="dash-root">
 <style>
-#dash-root { --dash-gutter: clamp(8px, 1.4vw, 20px); }
-.sv { max-width: 1880px; margin-inline: auto; font-family: var(--font-anthropic-sans); color: var(--color-fg); position: relative;
+#dash-root { --dash-gutter: clamp(12px, 2vw, 28px); }
+.sv { max-width: 1760px; margin-inline: auto; font-family: var(--font-anthropic-sans); color: var(--color-fg); position: relative;
   --sv-accent: var(--color-ok);
   --sv-n1: var(--color-bad);
   --sv-n2: color-mix(in srgb, var(--color-bad) 45%, var(--color-panel));
@@ -103,6 +103,9 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
 .sv-sw input[type=color] { width: 44px; height: 30px; border: 1px solid var(--color-border-line); border-radius: 6px; padding: 2px; background: var(--color-bg); cursor: pointer; }
 .sv-thr { display: grid; grid-template-columns: auto repeat(3, minmax(0, 5.2rem)); gap: 6px 8px; align-items: center; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-sm); }
 .sv-thr input { font: inherit; font-size: var(--cds-font-size-caption); width: 100%; padding: 4px 6px; border: 1px solid var(--color-border-line); border-radius: 6px; background: var(--color-bg); color: var(--color-fg); }
+.sv-rscale { display: inline-flex; align-items: center; gap: 6px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.sv-rscale input { font: inherit; font-size: var(--cds-font-size-caption); width: 4.4rem; padding: 4px 6px; border: 1px solid var(--color-border-line); border-radius: 6px; background: var(--color-bg); color: var(--color-fg); }
+.sv-radar-wrap { max-width: 760px; margin-inline: auto; }
 .sv-thr span.sv-thr-h { display: flex; align-items: center; gap: 4px; }
 .sv-thr span.sv-thr-h i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 .sv-prev-strip { display: flex; gap: 4px; margin-top: var(--cds-gap-sm); flex-wrap: wrap; }
@@ -469,11 +472,13 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
         <div><h3 class="sv-card-title"><span data-i18n="c_radar"></span><button class="sv-i" type="button" data-tip="radar">i</button></h3><p class="sv-card-note" data-i18n="c_radar_n"></p></div>
         <div class="sv-tools">
           <div class="sv-seg" role="group"><button type="button" data-rmetric="media"><span data-i18n="m_media"></span></button><button type="button" data-rmetric="otimo"><span data-i18n="m_otimo"></span></button></div>
+          <div class="sv-seg" role="group"><button type="button" data-rscale="full"><span data-i18n="rs_full"></span></button><button type="button" data-rscale="auto"><span data-i18n="rs_auto"></span></button><button type="button" data-rscale="custom"><span data-i18n="rs_custom"></span></button></div>
+          <span class="sv-rscale" id="r-custom" hidden><span data-i18n="rs_from"></span><input type="number" id="r-min" step="0.1"><span data-i18n="rs_to"></span><input type="number" id="r-max" step="0.1"></span>
           <div class="sv-exp" data-export="card-radar" data-name="radar" data-csv="radar"></div>
         </div>
       </div>
       <div class="sv-legend" id="lg-radar"></div>
-      <div class="sv-chart dash-skeleton" id="chart-radar" data-source="relatorios" style="min-height: 420px"></div>
+      <div class="sv-radar-wrap"><div class="sv-chart dash-skeleton" id="chart-radar" data-source="relatorios" style="min-height: 340px"></div><p class="sv-tblnote" id="radar-note" style="text-align:center"></p></div>
       <details class="sv-how"><summary data-i18n="how"></summary><p data-i18n="how_radar"></p></details>
     </div>
   </section>
@@ -624,6 +629,7 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
       <div><h2 data-i18n="d_title"></h2><div class="sv-dsel" id="d-sel"></div><div class="sv-dmeta" id="d-meta"></div></div>
       <div class="sv-tools">
         <button class="sv-btn" id="d-back" type="button"><span data-i18n="d_back"></span></button>
+        <button class="sv-btn" id="d-all" type="button" hidden><span data-i18n="d_all_btn"></span></button>
         <button class="sv-btn" id="d-filter" type="button" hidden></button>
         <input class="sv-search" id="d-search" type="search">
         <div class="sv-exp" data-export="card-dados" data-name="fichas" data-csv="dados"></div>
@@ -8216,10 +8222,11 @@ Q.IN.002,Q.IN,Discrição Acústica,Acoustic Discretion
     }
   } catch (e) { /* ignore */ }
 
-  const DEFAULTS = { areas: [], cursos: [], turmas: [], onlyFilled: false, grp: 'auto', minN: 5, metrica: 'media', ordem: 'form', rmetric: 'media' };
+  const DEFAULTS = { areas: [], cursos: [], turmas: [], onlyFilled: false, grp: 'auto', minN: 5, metrica: 'media', ordem: 'form', rmetric: 'media', rscale: 'full', rmin: 3, rmax: 5, pmin: 40, pmax: 100 };
+  const NUMS = ['minN', 'rmin', 'rmax', 'pmin', 'pmax'];
   const LISTS = ['areas', 'cursos', 'turmas'];
   let params = { ...DEFAULTS };
-  try { const h = new URLSearchParams(location.hash.slice(1)); for (const [k, v] of h) if (k in DEFAULTS) params[k] = LISTS.includes(k) ? v.split(',').filter(Boolean) : k === 'minN' ? Number(v) : k === 'onlyFilled' ? v === 'true' : v; } catch (e) { /* ignore */ }
+  try { const h = new URLSearchParams(location.hash.slice(1)); for (const [k, v] of h) if (k in DEFAULTS) params[k] = LISTS.includes(k) ? v.split(',').filter(Boolean) : NUMS.includes(k) ? Number(v) : k === 'onlyFilled' ? v === 'true' : v; } catch (e) { /* ignore */ }
   const subs = [];
   let pending = false;
   const run = () => { pending = false; subs.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } }); };
@@ -8402,7 +8409,7 @@ window.SV_I18N = (() => {
     influencia: [['Influência (correlação de Pearson)', 'Responde: quem dá nota alta nesta pergunta também costuma dar notas altas nas outras? Vai de −1 a +1. Perto de +1, a pergunta "anda junto" com a satisfação geral; perto de 0, é independente dela. Exemplo: r = 0,84 em Objetivos atingidos significa que, quando essa nota cai, as demais tendem a cair junto, então melhorar essa pergunta costuma puxar a percepção inteira. Mostra associação, não prova causa. Calculada com 10 ou mais fichas.'], ['Influence (Pearson correlation)', 'Answers: do people who score this question high also tend to score the others high? Ranges from −1 to +1. Near +1, the question moves together with overall satisfaction; near 0, it is independent of it. Example: r = 0.84 on Objectives achieved means that when this score drops the others tend to drop too, so improving this question usually lifts the whole perception. Shows association, not causation. Needs 10+ forms.']],
     desvio: [['Desvio-padrão (polarização)', 'Quanto as notas de uma pergunta se espalham em torno da média. Alto = opiniões divididas.'], ['Standard deviation (polarization)', 'How spread out a question\'s scores are around its mean. High = divided opinions.']],
     funil: [['Funil de controle', 'Cursos com poucas fichas variam muito por acaso; com muitas fichas, a média fica estável. O funil desenha, para cada tamanho de amostra, até onde um índice pode ir só por acaso: faixa interna = 95% de confiança, faixa externa = 99,8%. Um curso abaixo da faixa externa tem resultado inferior que dificilmente é sorte ou azar. Limites = índice geral ± 1,96 ou ± 3,09 × desvio-padrão das fichas ÷ √(número de fichas).'], ['Control funnel', 'Courses with few forms vary a lot by chance; with many forms the mean is stable. For each sample size, the funnel shows how far an index can drift by chance alone: inner band = 95% confidence, outer band = 99.8%. A course below the outer band has a lower result that is unlikely to be luck. Limits = overall index ± 1.96 or ± 3.09 × form standard deviation ÷ √(number of forms).']],
-    radar: [['Radar (teia de aranha)', 'Cada eixo é uma pergunta da ficha. Quanto mais longe do centro, melhor. O centro não é zero: a escala começa perto do menor valor para mostrar as diferenças, que são pequenas.'], ['Radar (spider chart)', 'Each axis is a form question. The farther from the center, the better. The center is not zero: the scale starts near the lowest value to reveal the differences, which are small.']],
+    radar: [['Radar (teia de aranha)', 'Cada eixo é uma pergunta da ficha. Quanto mais longe do centro, melhor. Na escala completa (padrão) o centro vale 1 (ou 0%) e a borda vale 5 (ou 100%), então a distância do centro é proporcional à nota. Em Zoom automático ou Personalizada, o centro passa a valer o mínimo escolhido: as diferenças aparecem mais, mas notas altas podem parecer baixas.'], ['Radar (spider chart)', 'Each axis is a form question. The farther from the center, the better. On the full scale (default) the center is 1 (or 0%) and the edge is 5 (or 100%), so distance from the center is proportional to the score. With Auto zoom or Custom, the center becomes the chosen minimum: differences stand out more, but high scores can look low.']],
     correlacao_r: [['r (coeficiente)', 'Valor da correlação de Pearson. Guia de leitura: abaixo de 0,3 fraca; 0,3 a 0,6 moderada; acima de 0,6 forte. Nesta base quase todas ficam entre 0,7 e 0,85, porque quem está satisfeito tende a marcar notas altas em tudo (efeito halo); por isso a matriz compara as perguntas entre si, pela média delas.'], ['r (coefficient)', 'Pearson correlation value. Reading guide: below 0.3 weak; 0.3 to 0.6 moderate; above 0.6 strong. In this data nearly all fall between 0.7 and 0.85, because satisfied people tend to score everything high (halo effect); so the matrix compares questions with each other, around their average.']],
     amplitude: [['Amplitude entre turmas', 'Diferença entre o índice da melhor e o da pior turma do mesmo curso.'], ['Spread across classes', 'Difference between the best and worst class index within the same course.']],
     base_min: [['Base mínima', 'Cursos ou turmas com menos fichas que este número ficam fora do mapa de calor, do ranking e da análise de turmas, para evitar conclusões com amostra pequena.'], ['Minimum sample', 'Courses or classes with fewer forms than this are left out of the heat map, ranking and class analysis, to avoid small-sample conclusions.']],
@@ -8442,10 +8449,13 @@ window.SV_I18N = (() => {
     how: ['Como ler', 'How to read'],
     how_prio: ['Cada ponto é uma pergunta. Na horizontal, quanto ela atinge a nota máxima (% Ótimo). Na vertical, a influência: a correlação de Pearson entre a nota daquela pergunta e a média das outras perguntas da mesma ficha. Um r alto quer dizer que, quando o participante avalia mal essa pergunta, tende a avaliar mal o curso inteiro. As linhas tracejadas são as médias das 10 perguntas. O quadrante "Prioridade" (sombreado) junta o que mais pesa na percepção e menos atinge o Ótimo: é onde uma melhoria rende mais. Nesta base os valores de r ficam todos altos e próximos (efeito halo), então o que importa é a posição relativa entre as perguntas, não o valor absoluto.', 'Each dot is a question. Horizontally, how often it reaches the top score (% Excellent). Vertically, influence: the Pearson correlation between that question and the mean of the other questions on the same form. A high r means that when a participant rates this question low, they tend to rate the whole course low. The dashed lines are the averages of the 10 questions. The shaded "Priority" quadrant holds what weighs most on perception and least reaches Excellent: that is where improvement pays off most. In this data all r values are high and close together (halo effect), so what matters is the relative position of the questions, not the absolute value.'],
     how_funil: ['Cada ponto é um curso: na horizontal, quantas fichas ele tem; na vertical, o índice de satisfação. Com poucas fichas, a média oscila muito por acaso; com muitas, fica estável. Por isso as faixas se abrem à esquerda e se fecham à direita, como um funil. A faixa escura mostra a variação normal com 95% de confiança, e a clara com 99,8%. Exemplo com os dados atuais: com 10 fichas, um índice até {a} ainda pode ser acaso; com 100 fichas, qualquer valor abaixo de {b} já é desvio real. Pontos vermelhos estão abaixo da faixa externa (investigar); rosados, abaixo da interna (acompanhar); verdes, acima do esperado. Assim um curso pequeno com nota baixa não é condenado por azar, e um curso grande com queda pequena não passa despercebido.', 'Each dot is a course: horizontally, how many forms it has; vertically, its satisfaction index. With few forms the mean swings a lot by chance; with many it is stable. So the bands open on the left and close on the right, like a funnel. The dark band shows normal variation at 95% confidence, the light one at 99.8%. Example with the current data: with 10 forms, an index down to {a} may still be chance; with 100 forms, anything below {b} is a real deviation. Red dots are below the outer band (investigate); pink, below the inner band (watch); green, above expected. This way a small course with a low score is not condemned for bad luck, and a large course with a small drop does not go unnoticed.'],
-    how_radar: ['Cada raio é uma pergunta da ficha, e cada linha liga as notas de um grupo. Linha mais afastada do centro = melhor. A linha tracejada é a referência de todos os cursos: onde a linha colorida entra para dentro dela, o recorte está pior que a média geral. O centro não vale zero; a escala começa perto do menor valor para que as diferenças apareçam.', 'Each spoke is a form question, and each line joins a group\'s scores. A line farther from the center = better. The dashed line is the all-courses reference: where the colored line dips inside it, the scope is worse than overall. The center is not zero; the scale starts near the lowest value so differences show.'],
+    how_radar: ['Cada raio é uma pergunta da ficha, e cada linha liga as notas de um grupo. Linha mais afastada do centro = melhor. A linha tracejada é a referência de todos os cursos: onde a linha colorida entra para dentro dela, o recorte está pior que a média geral. Escala: em “Escala completa” o centro é a nota 1 e a borda é 5, então uma média de 4,6 fica a 90% do caminho até a borda. “Zoom automático” aproxima a faixa onde estão os valores para mostrar diferenças pequenas, e “Personalizada” deixa você definir o início e o fim da escala. Nesses dois modos o centro deixa de ser 1, e o rodapé do gráfico avisa o valor do centro.', 'Each spoke is a form question, and each line joins a group\'s scores. A line farther from the center = better. The dashed line is the all-courses reference: where the colored line dips inside it, the scope is worse than overall. Scale: on “Full scale” the center is score 1 and the edge is 5, so a mean of 4.6 sits 90% of the way to the edge. “Auto zoom” narrows to the range where the values are, to show small differences, and “Custom” lets you set where the scale starts and ends. In these two modes the center is no longer 1, and the note under the chart shows the center value.'],
+    rs_full: ['Escala completa', 'Full scale'], rs_auto: ['Zoom automático', 'Auto zoom'], rs_custom: ['Personalizada', 'Custom'], rs_from: ['de', 'from'], rs_to: ['até', 'to'],
+    scale_zoom: ['Escala ampliada: o centro vale {a}, não {z}. Notas perto do centro não são baixas.', 'Zoomed scale: the center is {a}, not {z}. Scores near the center are not low.'],
+    d_all: ['Todas as fichas do recorte', 'All forms in the scope'], d_all_btn: ['Ver todas as fichas', 'See all forms'],
     how_turmas: ['Sem curso único selecionado: cada linha é um curso, cada ponto uma turma; a linha cinza vai da pior à melhor turma e o traço é a média do curso. Amplitude grande indica que o resultado depende muito da turma (instrutor, sala, horário). Clique num ponto para ver as fichas da turma, ou no nome para filtrar o curso. Com um curso selecionado, as turmas aparecem num funil em torno da média do curso.', 'With no single course selected: each row is a course, each dot a class; the grey line runs from worst to best class and the tick is the course mean. A large spread means the result depends heavily on the class (instructor, room, schedule). Click a dot to see that class\'s forms, or the name to filter the course. With one course selected, its classes appear in a funnel around the course mean.'],
     click_hint: ['Clique em qualquer barra, célula, ponto ou linha para ver as fichas de origem na aba Dados.', 'Click any bar, cell, dot or row to see the source forms in the Data tab.'],
-    d_title: ['Fichas de origem', 'Source forms'], d_empty: ['Clique num elemento de qualquer gráfico ou tabela do painel para ver aqui as fichas que formam aquele número.', 'Click an element in any chart or table to see here the forms behind that number.'],
+    d_title: ['Fichas de origem', 'Source forms'], d_empty: ['Nenhuma ficha no recorte atual.', 'No forms in the current scope.'], d_tip: ['Dica: clique em qualquer barra, ponto ou célula do painel para ver aqui só as fichas daquele número.', 'Tip: click any bar, point or cell in the dashboard to see here only the forms behind that number.'],
     d_back: ['← Voltar ao painel', '← Back to dashboard'], d_filter: ['Filtrar o painel por {v}', 'Filter dashboard by {v}'],
     d_count: ['{n} fichas', '{n} forms'], d_summary: ['Resumo por curso', 'Summary by course'], d_more: ['Mostrar mais {n}', 'Show {n} more'], d_showing: ['Mostrando {a} de {b}', 'Showing {a} of {b}'],
     d_scope: ['Dentro do recorte: {v}', 'Within scope: {v}'], d_hl: ['Coluna destacada: {v}', 'Highlighted column: {v}'],
@@ -8884,6 +8894,19 @@ window.SV_I18N = (() => {
   document.querySelectorAll('[data-ordem]').forEach((b) => b.addEventListener('click', () => dash.setParams({ ordem: b.dataset.ordem })));
   document.querySelectorAll('[data-metrica]').forEach((b) => b.addEventListener('click', () => dash.setParams({ metrica: b.dataset.metrica })));
   document.querySelectorAll('[data-rmetric]').forEach((b) => b.addEventListener('click', () => dash.setParams({ rmetric: b.dataset.rmetric })));
+  document.querySelectorAll('[data-rscale]').forEach((b) => b.addEventListener('click', () => {
+    const patch = { rscale: b.dataset.rscale };
+    if (b.dataset.rscale === 'custom' && P().rscale !== 'custom' && SCOPE) {
+      const m = (P().rmetric || 'media') === 'media';
+      const cur = radarScale(m ? 'media' : 'otimo', SCOPE.S.items.map((it) => (m ? it.media : it.pct5)).filter((v) => v != null).concat(DB.G.items.map((it) => (m ? it.media : it.pct5)).filter((v) => v != null)), 'auto');
+      Object.assign(patch, m ? { rmin: cur.lo, rmax: cur.hi } : { pmin: cur.lo, pmax: cur.hi });
+    }
+    dash.setParams(patch);
+  }));
+  ['r-min', 'r-max'].forEach((id) => $(id).addEventListener('change', () => {
+    const m = (P().rmetric || 'media') === 'media'; const v = Number($(id).value); if (!Number.isFinite(v)) return;
+    dash.setParams({ [(m ? 'r' : 'p') + (id === 'r-min' ? 'min' : 'max')]: v });
+  }));
   const togglePanel = (btn, panel) => { const open = panel.hidden; panel.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
   $('btn-colors').addEventListener('click', () => togglePanel($('btn-colors'), $('colors-panel')));
   $('cfg-close').addEventListener('click', () => togglePanel($('btn-colors'), $('colors-panel')));
@@ -8916,7 +8939,7 @@ window.SV_I18N = (() => {
   }
   document.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => {
     if (b.dataset.view === UI.view) return;
-    if (b.dataset.view === 'dados') { painelScroll = window.scrollY; setView('dados'); drawDados(); }
+    if (b.dataset.view === 'dados') { painelScroll = window.scrollY; setView('dados'); drawDados(); requestAnimationFrame(() => { const st = $('barra').getBoundingClientRect().height; const top = $('view-dados').getBoundingClientRect().top + window.scrollY - st - 8; if (window.scrollY > top) window.scrollTo(0, Math.max(0, top)); }); }
     else { setView('painel'); requestAnimationFrame(() => window.scrollTo(0, painelScroll)); }
   }));
   $('d-back').addEventListener('click', () => { setView('painel'); requestAnimationFrame(() => window.scrollTo(0, painelScroll)); });
@@ -8936,11 +8959,20 @@ window.SV_I18N = (() => {
     document.querySelectorAll('[data-ordem]').forEach((b) => b.setAttribute('aria-pressed', String((P().ordem || 'form') === b.dataset.ordem)));
     document.querySelectorAll('[data-metrica]').forEach((b) => b.setAttribute('aria-pressed', String((P().metrica || 'media') === b.dataset.metrica)));
     document.querySelectorAll('[data-rmetric]').forEach((b) => b.setAttribute('aria-pressed', String((P().rmetric || 'media') === b.dataset.rmetric)));
+    const rs = P().rscale || 'full', rm = (P().rmetric || 'media') === 'media';
+    document.querySelectorAll('[data-rscale]').forEach((b) => b.setAttribute('aria-pressed', String(rs === b.dataset.rscale)));
+    $('r-custom').hidden = rs !== 'custom';
+    if (rs === 'custom' && SCOPE) {
+      const sc = radarScale(rm ? 'media' : 'otimo', [1]);
+      [['r-min', sc.lo], ['r-max', sc.hi]].forEach(([id, v]) => { const i = $(id); i.min = rm ? 1 : 0; i.max = rm ? 5 : 100; i.step = rm ? 0.1 : 5; if (document.activeElement !== i) i.value = rm ? String(Math.round(v * 100) / 100) : String(Math.round(v)); });
+    }
   }
 
   // ---------- drill-down to source forms ----------
   let D = null;
+  let DA = null; // vista padrão: todas as fichas do recorte
   let SCOPE = null;
+  const CD = () => D || DA;
   const CSVD = {};
   function openData(spec) {
     if (UI.view === 'painel') painelScroll = window.scrollY;
@@ -8959,10 +8991,17 @@ window.SV_I18N = (() => {
     const flt = g.nivel === 'curso' ? { cursos: [g.sigla], turmas: [] } : g.nivel === 'turma' ? { cursos: [g.sigla], turmas: [g.key] } : g.nivel === 'area' ? { areas: [g.area], cursos: [], turmas: [] } : null;
     openData({ label: ex.label || (() => gFull(g)), rows: ex.rows || g.rows, hl: ex.hl || [], filter: flt, filterName: () => gFull(g) });
   };
-  $('d-search').addEventListener('input', () => { if (D) { D.limit = 300; drawDados(); } });
+  $('d-search').addEventListener('input', () => { const d = CD(); if (d) { d.limit = 300; drawDados(); } });
+  $('d-all').addEventListener('click', () => { D = null; $('d-search').value = ''; if (DA) { DA.limit = 300; DA.course = null; } drawDados(); });
+  function syncDA() {
+    if (!SCOPE) return;
+    if (DA && DA.rows === SCOPE.rows) return;
+    DA = { label: () => t('d_all'), rows: SCOPE.rows, hl: [], all: true, sortKey: DA ? DA.sortKey : 'sigla', sortDir: DA ? DA.sortDir : 'asc', course: null, limit: 300 };
+  }
   $('d-filter').addEventListener('click', () => { if (D && D.filter) { setFilter(D.filter); setView('painel'); window.scrollTo(0, 0); } });
   const STX = () => ({ 'Preenchido': t('st_pre'), 'Não preenchido': t('st_nao'), 'Faltoso': t('st_fal') });
   function dadosRows() {
+    const D = CD();
     if (!D) return [];
     const q = $('d-search').value.trim().toLowerCase();
     let rows = D.rows;
@@ -8973,12 +9012,16 @@ window.SV_I18N = (() => {
     return rows.slice().sort((a, b) => { const va = val(a), vb = val(b); if (va == null && vb == null) return 0; if (va == null) return 1; if (vb == null) return -1; const o = typeof va === 'number' ? va - vb : String(va).localeCompare(String(vb), LOC(), { numeric: true }); return (o * dir) || a.sigla.localeCompare(b.sigla) || a.turma - b.turma || a.rel - b.rel; });
   }
   function drawDados() {
-    const has = !!D;
-    $('dados-n').hidden = !has; if (has) $('dados-n').textContent = fi(D.rows.length);
+    syncDA();
+    const D = CD();
+    const has = !!(D && D.rows.length);
+    $('d-all').hidden = !(D && !D.all);
+    $('dados-n').hidden = !D; if (D) $('dados-n').textContent = fi(D.rows.length);
     $('d-empty').hidden = has; $('d-wrap').hidden = !has; $('card-dados').querySelector('.sv-mini-lbl').hidden = !has;
-    if (!has) { $('d-sel').textContent = ''; $('d-meta').textContent = ''; $('d-sum').replaceChildren(); $('d-foot').textContent = ''; $('d-filter').hidden = true; CSVD.dados = null; return; }
+    if (!has) { $('d-sel').textContent = D ? D.label() : ''; $('d-meta').textContent = ''; $('d-sum').replaceChildren(); $('d-foot').textContent = ''; $('d-filter').hidden = true; CSVD.dados = null; return; }
     $('d-sel').textContent = D.label();
     const meta = [t('d_count', { n: fi(D.rows.length) }), t('d_scope', { v: scopeLabel() })];
+    if (D.all) meta.push(t('d_tip'));
     if (D.hl && D.hl.length) meta.push(t('d_hl', { v: D.hl.map((k) => (QK.includes(k) ? qLabel(k) : k === 'ka' ? qLabel('conhec_antes') : k === 'kd' ? qLabel('conhec_apos') : k === 'idx' ? t('col_idx_ficha') : k)).join(', ') }));
     $('d-meta').textContent = meta.join(' · ');
     const fb = $('d-filter'); fb.hidden = !D.filter; if (D.filter) fb.textContent = t('d_filter', { v: D.filterName ? D.filterName() : '' });
@@ -9191,8 +9234,27 @@ window.SV_I18N = (() => {
   }
 
   // ---------- Radar ----------
+  // Escala do radar: completa (1–5 / 0–100%), zoom automático ou personalizada (parâmetros rmin/rmax e pmin/pmax).
+  function radarScale(metr, all, force) {
+    const p = P(), mode = force || p.rscale || 'full', m = metr === 'media';
+    const B0 = m ? 1 : 0, B1 = m ? 5 : 100;
+    if (mode === 'auto') {
+      const mn = d3.min(all), mx = d3.max(all);
+      const lo = m ? Math.max(1, Math.floor((mn - 0.15) * 4) / 4) : Math.max(0, Math.floor((mn - 5) / 10) * 10);
+      const hi = m ? Math.min(5, Math.max(lo + 0.5, Math.ceil((mx + 0.05) * 4) / 4)) : Math.min(100, Math.max(lo + 10, Math.ceil((mx + 2) / 10) * 10));
+      return { lo, hi };
+    }
+    if (mode === 'custom') {
+      let lo = Number(m ? p.rmin : p.pmin), hi = Number(m ? p.rmax : p.pmax);
+      if (!Number.isFinite(lo)) lo = m ? 3 : 40; if (!Number.isFinite(hi)) hi = B1;
+      lo = Math.max(B0, Math.min(B1, lo)); hi = Math.max(B0, Math.min(B1, hi));
+      if (hi - lo < (m ? 0.1 : 1)) hi = Math.min(B1, lo + (m ? 0.5 : 10)), lo = Math.min(lo, hi - (m ? 0.5 : 10));
+      return { lo, hi };
+    }
+    return { lo: B0, hi: B1 };
+  }
   function drawRadar(S, G, filt, rows) {
-    const box = $('chart-radar'); box.classList.remove('dash-skeleton'); clearChart(box);
+    const box = $('chart-radar'); box.classList.remove('dash-skeleton'); box.style.minHeight = '0'; clearChart(box);
     const tip = tipFor(box);
     const metr = P().rmetric || 'media';
     const f = F();
@@ -9208,30 +9270,36 @@ window.SV_I18N = (() => {
     lg.replaceChildren(...series.map((s) => { const sp = el('span'); const sw = el('i'); sw.style.background = s.color; sp.append(sw, s.name); return sp; }));
     if (showRef) { const sp = el('span'); const sw = el('i'); sw.style.background = 'transparent'; sw.style.border = '2px dashed var(--color-fg-muted)'; sp.append(sw, t('radar_ref')); lg.append(sp); }
     CSVD.radar = { header: [t('c_perguntas'), ...series.map((s) => s.name), ...(showRef ? [t('radar_ref')] : [])], rows: QK.map((k, i) => [qLabel(k), ...series.map((s) => val(s.a.items[i])), ...(showRef ? [val(G.items[i])] : [])]) };
-    if (!series.length || !all.length) { empty(box, t('no_resp')); return; }
+    if (!series.length || !all.length) { $('radar-note').textContent = ''; empty(box, t('no_resp')); return; }
     const W = box.clientWidth; if (!W) return;
-    const H = Math.min(540, Math.max(360, W * 0.5));
+    const sc = radarScale(metr, all);
+    const lo = sc.lo, hi = sc.hi, base = metr === 'media' ? 1 : 0;
+    const narrow = W < 560;
+    const R = Math.max(80, Math.min(narrow ? W / 2 - 58 : 175, W / 2 - (narrow ? 58 : 130)));
+    const H = Math.round(R * 2 + 56);
     const svg = d3.select(box).insert('svg', '.sv-tip').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
-    const cx = W / 2, cy = H / 2 + 4, R = Math.max(80, Math.min(W / 2 - (W < 560 ? 60 : 150), H / 2 - 40));
-    const lo = metr === 'media' ? Math.max(1, Math.floor((d3.min(all) - 0.1) * 10) / 10) : Math.max(0, Math.floor((d3.min(all) - 5) / 5) * 5);
-    const hi = metr === 'media' ? 5 : 100;
-    const r = d3.scaleLinear([lo, hi], [R * 0.12, R]);
+    const cx = W / 2, cy = R + 26;
+    const r = d3.scaleLinear([lo, hi], [0, R]).clamp(true);
     const ang = (i) => (i / QK.length) * 2 * Math.PI - Math.PI / 2;
     const pt = (i, v) => [cx + Math.cos(ang(i)) * r(v), cy + Math.sin(ang(i)) * r(v)];
-    d3.range(5).map((k) => lo + ((hi - lo) * (k + 1)) / 5).forEach((tv) => {
+    const fmtS = (v) => (metr === 'media' ? f2(v) : loc(v, 0) + '%');
+    const ticks = d3.ticks(lo, hi, metr === 'media' && hi - lo <= 1 ? 5 : 4).filter((v) => v > lo + 1e-9);
+    ticks.forEach((tv) => {
       svg.append('path').attr('d', d3.line()(QK.map((_, i) => pt(i, tv)).concat([pt(0, tv)]))).style('fill', 'none').style('stroke', 'var(--cds-chart-grid)');
       const la = -Math.PI / 2 + Math.PI / QK.length;
-      svg.append('text').attr('x', cx + Math.cos(la) * r(tv) + 3).attr('y', cy + Math.sin(la) * r(tv) - 3).style('font-size', '10px').style('fill', 'var(--color-fg-muted)').text(metr === 'media' ? f2(tv) : loc(tv, 0) + '%');
+      svg.append('text').attr('x', cx + Math.cos(la) * r(tv) + 3).attr('y', cy + Math.sin(la) * r(tv) - 3).style('font-size', '10px').style('fill', 'var(--color-fg-muted)').text(fmtS(tv));
     });
     QK.forEach((k, i) => {
       const [x2, y2] = pt(i, hi);
       svg.append('line').attr('x1', cx).attr('y1', cy).attr('x2', x2).attr('y2', y2).style('stroke', 'var(--cds-chart-grid)');
-      const lx = cx + Math.cos(ang(i)) * (R + 14), ly = cy + Math.sin(ang(i)) * (R + 14);
+      const lx = cx + Math.cos(ang(i)) * (R + 12), ly = cy + Math.sin(ang(i)) * (R + 12);
       const anchor = Math.abs(Math.cos(ang(i))) < 0.2 ? 'middle' : Math.cos(ang(i)) > 0 ? 'start' : 'end';
-      svg.append('text').attr('x', lx).attr('y', ly + 4).attr('text-anchor', anchor).style('font-size', 'var(--cds-font-size-caption)').style('fill', 'var(--color-fg)').style('cursor', 'pointer').text(W < 560 ? qShort(k) : qLabel(k))
+      const dy = Math.sin(ang(i)) < -0.9 ? -2 : Math.sin(ang(i)) > 0.9 ? 10 : 4;
+      svg.append('text').attr('x', lx).attr('y', ly + dy).attr('text-anchor', anchor).style('font-size', 'var(--cds-font-size-caption)').style('fill', 'var(--color-fg)').style('cursor', 'pointer').text(narrow ? qShort(k) : qLabel(k))
         .on('click', () => openData({ label: () => t('sel_q', { q: qLabel(k) }), rows: qRows(rows, i), hl: [k] }));
     });
-    svg.append('text').attr('x', 0).attr('y', H - 4).style('font-size', '11px').style('fill', 'var(--color-fg-muted)').text(t('scale_from', { a: metr === 'media' ? f2(lo) : loc(lo, 0) + '%', b: metr === 'media' ? f2(5) : '100%' }));
+    const rn = $('radar-note'); rn.replaceChildren(t('scale_from', { a: fmtS(lo), b: fmtS(hi) }));
+    if (lo > base) { const w = el('b', '', ' · ' + t('scale_zoom', { a: fmtS(lo), z: fmtS(base) })); w.style.color = 'var(--color-warn)'; rn.append(w); }
     if (showRef) { const pts = G.items.map((it, i) => pt(i, val(it) ?? lo)); svg.append('path').attr('d', d3.line()(pts.concat([pts[0]]))).style('fill', 'none').style('stroke', 'var(--color-fg-muted)').style('stroke-width', 1.5).attr('stroke-dasharray', '5 4'); }
     series.forEach((s) => {
       const pts = s.a.items.map((it, i) => pt(i, val(it) ?? lo));

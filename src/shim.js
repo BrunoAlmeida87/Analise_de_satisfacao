@@ -29,10 +29,11 @@
     }
   } catch (e) { /* ignore */ }
 
-  const DEFAULTS = { areas: [], cursos: [], turmas: [], onlyFilled: false, grp: 'auto', minN: 5, metrica: 'media', ordem: 'form', rmetric: 'media' };
+  const DEFAULTS = { areas: [], cursos: [], turmas: [], onlyFilled: false, grp: 'auto', minN: 5, metrica: 'media', ordem: 'form', rmetric: 'media', rscale: 'full', rmin: 3, rmax: 5, pmin: 40, pmax: 100 };
+  const NUMS = ['minN', 'rmin', 'rmax', 'pmin', 'pmax'];
   const LISTS = ['areas', 'cursos', 'turmas'];
   let params = { ...DEFAULTS };
-  try { const h = new URLSearchParams(location.hash.slice(1)); for (const [k, v] of h) if (k in DEFAULTS) params[k] = LISTS.includes(k) ? v.split(',').filter(Boolean) : k === 'minN' ? Number(v) : k === 'onlyFilled' ? v === 'true' : v; } catch (e) { /* ignore */ }
+  try { const h = new URLSearchParams(location.hash.slice(1)); for (const [k, v] of h) if (k in DEFAULTS) params[k] = LISTS.includes(k) ? v.split(',').filter(Boolean) : NUMS.includes(k) ? Number(v) : k === 'onlyFilled' ? v === 'true' : v; } catch (e) { /* ignore */ }
   const subs = [];
   let pending = false;
   const run = () => { pending = false; subs.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } }); };

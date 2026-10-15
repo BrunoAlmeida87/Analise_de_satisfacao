@@ -1,6 +1,6 @@
 <style>
-#dash-root { --dash-gutter: clamp(8px, 1.4vw, 20px); }
-.sv { max-width: 1880px; margin-inline: auto; font-family: var(--font-anthropic-sans); color: var(--color-fg); position: relative;
+#dash-root { --dash-gutter: clamp(12px, 2vw, 28px); }
+.sv { max-width: 1760px; margin-inline: auto; font-family: var(--font-anthropic-sans); color: var(--color-fg); position: relative;
   --sv-accent: var(--color-ok);
   --sv-n1: var(--color-bad);
   --sv-n2: color-mix(in srgb, var(--color-bad) 45%, var(--color-panel));
@@ -59,6 +59,9 @@
 .sv-sw input[type=color] { width: 44px; height: 30px; border: 1px solid var(--color-border-line); border-radius: 6px; padding: 2px; background: var(--color-bg); cursor: pointer; }
 .sv-thr { display: grid; grid-template-columns: auto repeat(3, minmax(0, 5.2rem)); gap: 6px 8px; align-items: center; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-sm); }
 .sv-thr input { font: inherit; font-size: var(--cds-font-size-caption); width: 100%; padding: 4px 6px; border: 1px solid var(--color-border-line); border-radius: 6px; background: var(--color-bg); color: var(--color-fg); }
+.sv-rscale { display: inline-flex; align-items: center; gap: 6px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.sv-rscale input { font: inherit; font-size: var(--cds-font-size-caption); width: 4.4rem; padding: 4px 6px; border: 1px solid var(--color-border-line); border-radius: 6px; background: var(--color-bg); color: var(--color-fg); }
+.sv-radar-wrap { max-width: 760px; margin-inline: auto; }
 .sv-thr span.sv-thr-h { display: flex; align-items: center; gap: 4px; }
 .sv-thr span.sv-thr-h i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 .sv-prev-strip { display: flex; gap: 4px; margin-top: var(--cds-gap-sm); flex-wrap: wrap; }
@@ -425,11 +428,13 @@
         <div><h3 class="sv-card-title"><span data-i18n="c_radar"></span><button class="sv-i" type="button" data-tip="radar">i</button></h3><p class="sv-card-note" data-i18n="c_radar_n"></p></div>
         <div class="sv-tools">
           <div class="sv-seg" role="group"><button type="button" data-rmetric="media"><span data-i18n="m_media"></span></button><button type="button" data-rmetric="otimo"><span data-i18n="m_otimo"></span></button></div>
+          <div class="sv-seg" role="group"><button type="button" data-rscale="full"><span data-i18n="rs_full"></span></button><button type="button" data-rscale="auto"><span data-i18n="rs_auto"></span></button><button type="button" data-rscale="custom"><span data-i18n="rs_custom"></span></button></div>
+          <span class="sv-rscale" id="r-custom" hidden><span data-i18n="rs_from"></span><input type="number" id="r-min" step="0.1"><span data-i18n="rs_to"></span><input type="number" id="r-max" step="0.1"></span>
           <div class="sv-exp" data-export="card-radar" data-name="radar" data-csv="radar"></div>
         </div>
       </div>
       <div class="sv-legend" id="lg-radar"></div>
-      <div class="sv-chart dash-skeleton" id="chart-radar" data-source="relatorios" style="min-height: 420px"></div>
+      <div class="sv-radar-wrap"><div class="sv-chart dash-skeleton" id="chart-radar" data-source="relatorios" style="min-height: 340px"></div><p class="sv-tblnote" id="radar-note" style="text-align:center"></p></div>
       <details class="sv-how"><summary data-i18n="how"></summary><p data-i18n="how_radar"></p></details>
     </div>
   </section>
@@ -580,6 +585,7 @@
       <div><h2 data-i18n="d_title"></h2><div class="sv-dsel" id="d-sel"></div><div class="sv-dmeta" id="d-meta"></div></div>
       <div class="sv-tools">
         <button class="sv-btn" id="d-back" type="button"><span data-i18n="d_back"></span></button>
+        <button class="sv-btn" id="d-all" type="button" hidden><span data-i18n="d_all_btn"></span></button>
         <button class="sv-btn" id="d-filter" type="button" hidden></button>
         <input class="sv-search" id="d-search" type="search">
         <div class="sv-exp" data-export="card-dados" data-name="fichas" data-csv="dados"></div>
